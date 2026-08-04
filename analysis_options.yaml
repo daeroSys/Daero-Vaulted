@@ -1,0 +1,31 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_const_constructors_in_immutables
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_locals
+    - prefer_final_fields
+    - avoid_print
+    - avoid_empty_else
+    - always_declare_return_types
+    - cancel_subscriptions
+    - close_sinks
+    - control_flow_in_finally
+    - empty_statements
+    - no_duplicate_case_values
+    - throw_in_finally
+    - unnecessary_statements
+    - prefer_single_quotes
+
+analyzer:
+  errors:
+    dead_code: error
+    unused_element: error
+    unused_local_variable: error
+    unused_import: error
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
