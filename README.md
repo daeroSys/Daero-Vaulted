@@ -1,7 +1,6 @@
 <div align="center">
   <img src="assets/logo1.png" alt="Vaulted Logo" width="200"/>
-
-  # Vaulted
+  <h1>Vaulted</h1>
   **Your Universal Personal Knowledge Library**
 
   Vaulted is an offline-first, cross-platform personal knowledge library designed to rescue the content you learn from social media and the web. It centralizes, organizes, and enriches your saved content, ensuring that what you find today is never lost tomorrow.
