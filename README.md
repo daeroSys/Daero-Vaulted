@@ -235,13 +235,6 @@ Vaulted will rely heavily on organic growth and community evangelism.
 
 - [`docs/architecture.md`](docs/architecture.md) — The strict architectural source of truth for the codebase.
 - [`docs/roadmap.md`](docs/roadmap.md) — The sequenced implementation plan and definition of done.
-- [`docs/development.md`](docs/development.md) — Local environment setup and contribution guidelines.
-- [`docs/decisions.md`](docs/decisions.md) — Architectural Decision Records (ADRs).
-- [`docs/changelog.md`](docs/changelog.md) — Release notes and historical changes.
-
-## 🤝 Contributing
-
-We welcome contributions! Please read our contribution guidelines in `docs/development.md` before submitting pull requests. Ensure all changes strictly adhere to the Clean Architecture patterns defined in `docs/architecture.md`.
 
 ## 📄 License
 
