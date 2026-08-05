@@ -44,6 +44,17 @@ The schema reflects the separation of mutable metadata, the introduction of a de
 
 ```mermaid
 erDiagram
+    Users {
+        UUIDv7 id PK
+        string email
+        string displayName
+        string photoUrl
+        string subscriptionTier
+        timestamp createdAt
+        timestamp updatedAt
+        timestamp deletedAt "Soft Delete"
+    }
+
     Content {
         UUIDv7 id PK
         enum Platform "YOUTUBE, INSTAGRAM, FACEBOOK, TIKTOK, UNKNOWN"
@@ -67,6 +78,18 @@ erDiagram
         enum MetadataStatus "PENDING, FETCHING, READY, FAILED, STALE"
         timestamp lastFetched
         timestamp updatedAt
+    }
+
+    Tags {
+        UUIDv7 id PK
+        string name
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    ContentTags {
+        UUIDv7 contentId PK, FK
+        UUIDv7 tagId PK, FK
     }
 
     SyncQueue {
@@ -96,6 +119,7 @@ erDiagram
 
     SavedItems {
         UUIDv7 id PK
+        UUIDv7 userId FK
         UUIDv7 folderId FK
         UUIDv7 contentId FK
         text notes
@@ -106,7 +130,11 @@ erDiagram
         timestamp deletedAt "Soft Delete"
     }
 
+    Users ||--o{ Folders : "creates"
+    Users ||--o{ SavedItems : "saves"
     Content ||--o| ContentMetadata : "has"
+    Content ||--o{ ContentTags : "has"
+    Tags ||--o{ ContentTags : "assigned to"
     Folders ||--o{ SavedItems : "contains"
     Content ||--o{ SavedItems : "referenced by"
 ```
@@ -116,6 +144,7 @@ erDiagram
 The generic repository approach has been replaced with specialized, focused, and independently testable repositories under the Data Layer:
 
 *   **FolderRepository**: Manages folders and folder hierarchy.
+*   **TagRepository**: CRUD for tags, assigning tags to content, removing tags, and searching tags.
 *   **ContentRepository**: Manages immutable content records.
 *   **MetadataRepository**: Manages mutable content metadata (`ContentMetadata`).
 *   **SearchRepository**: Transparently decides whether to use local search (SQLite FTS5) or remote search (PostgreSQL FTS).
@@ -128,6 +157,7 @@ Dedicated services under `core/services` enforce single-responsibility principle
 
 ### Core Services
 *   **AuthenticationService**: High-level auth workflows.
+*   **TagService**: Manages tags, assigns tags, suggests existing tags, and prevents duplicate tag names.
 *   **ShareService**: Orchestrates incoming shared content.
 *   **SyncService**: Coordinates background data synchronization.
 *   **SearchService**: Orchestrates local/remote search queries.
@@ -192,6 +222,7 @@ flowchart TD
 
 Search seamlessly handles offline environments without requiring internet access.
 
+*   **Capabilities**: Search must support Folders, Title, Creator, Notes, Tags, Platform, and Content Type.
 *   **Local Strategy**: SQLite FTS5 provides instant search capabilities.
 *   **Remote Strategy**: PostgreSQL Full Text Search handles deep server-side searches.
 *   **Execution**: The `SearchRepository` dynamically routes queries based on the `ConnectivityMonitor`.
@@ -213,6 +244,10 @@ To optimize for recent saves, folder browsing, duplicate detection, offline sync
 *   `canonicalUrl`
 *   `folderId`
 *   `contentId`
+*   `tagId`
+*   `name`
+*   `ContentTags.contentId`
+*   `ContentTags.tagId`
 *   `savedAt`
 *   `deletedAt`
 *   `metadataStatus`
@@ -221,6 +256,8 @@ To optimize for recent saves, folder browsing, duplicate detection, offline sync
 *   `SyncQueue.createdAt`
 
 ## 9. Scalability Notes
+
+Tags are intentionally platform-independent. Future content types (like PDFs, GitHub repositories, Reddit posts, Medium articles, and Podcasts) can reuse the same tagging infrastructure without schema changes.
 
 The architecture is explicitly designed for future expansion to support content like Articles, GitHub repositories, Reddit posts, PDFs, Podcasts, and Web pages. Supporting new content types will only require:
 1.  A new `MetadataProvider` implementation

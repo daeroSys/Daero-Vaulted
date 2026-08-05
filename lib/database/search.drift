@@ -1,0 +1,9 @@
+CREATE VIRTUAL TABLE fts_search USING fts5(
+  contentId UNINDEXED,
+  title,
+  creator,
+  description,
+  notes,
+  tags,
+  tokenize='porter unicode61'
+);
