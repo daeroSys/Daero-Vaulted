@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.png" alt="Vaulted Logo" width="200"/>
+  <img src="assets/logo1.png" alt="Vaulted Logo" width="200"/>
 
   # Vaulted
   **Your Universal Personal Knowledge Library**
