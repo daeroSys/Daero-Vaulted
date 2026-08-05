@@ -77,7 +77,7 @@ As knowledge overload increases, the need for a unified, platform-agnostic organ
 - **Fast Lookup:** Time-ordered UUIDv7 architecture for lightning-fast disk reads.
 
 ### 🛡️ Reliability
-- **Offline-first:** Core database lives on your device; no loading spinners.
+- **Offline-first (Organization, not Media):** The core database lives on your device. You can search, organize, and browse your library instantly offline. *(Note: Vaulted organizes links, it does not download actual video/media files for offline playback).*
 - **Background Sync:** The `SyncQueue` ensures mutations safely reach the cloud.
 - **Conflict Resolution:** Graceful handling of multi-device edits.
 - **Soft Delete:** Accidental deletions are recoverable.
