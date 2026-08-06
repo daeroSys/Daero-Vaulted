@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,14 +6,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/config/env.dart';
 import 'core/utils/logger.dart';
 import 'core/utils/app_lifecycle_observer.dart';
 import 'theme/app_theme.dart';
 import 'router/app_router.dart';
+import 'core/utils/secure_local_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('Failed to load .env file: $e');
+  }
 
   // Initialize Logger
   AppLogger.init();
@@ -41,9 +51,15 @@ void main() async {
       url: Env.supabaseUrl,
       // ignore: deprecated_member_use
       anonKey: Env.supabaseAnonKey,
+      authOptions: FlutterAuthClientOptions(
+        localStorage: SecureLocalStorage(),
+      ),
     );
-  } catch (e) {
+  } catch (e, stack) {
     AppLogger.e('Failed to initialize Supabase: $e');
+    try {
+      File('C:\\Vaulted\\supabase_error.txt').writeAsStringSync('Error: $e\nStack: $stack');
+    } catch (_) {}
   }
 
   // Initialize RevenueCat
@@ -67,14 +83,14 @@ void main() async {
   );
 }
 
-class VaultedApp extends StatefulWidget {
+class VaultedApp extends ConsumerStatefulWidget {
   const VaultedApp({super.key});
 
   @override
-  State<VaultedApp> createState() => _VaultedAppState();
+  ConsumerState<VaultedApp> createState() => _VaultedAppState();
 }
 
-class _VaultedAppState extends State<VaultedApp> {
+class _VaultedAppState extends ConsumerState<VaultedApp> {
   final AppLifecycleObserver _observer = AppLifecycleObserver();
 
   @override
@@ -91,12 +107,14 @@ class _VaultedAppState extends State<VaultedApp> {
 
   @override
   Widget build(BuildContext context) {
+    final router = ref.watch(appRouterProvider);
+
     return MaterialApp.router(
       title: 'Vaulted',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      routerConfig: appRouter,
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:vaulted/database/app_database.dart';
 import 'package:vaulted/database/daos/user_dao.dart';

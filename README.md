@@ -6,7 +6,7 @@
   Vaulted is an offline-first, cross-platform personal knowledge library designed to rescue the content you learn from social media and the web. It centralizes, organizes, and enriches your saved content, ensuring that what you find today is never lost tomorrow.
 
   ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
-  ![Current Phase](https://img.shields.io/badge/Phase-2%3A%20Authentication-blue)
+  ![Current Phase](https://img.shields.io/badge/Phase-3%3A%20Folder%20Management-blue)
   ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
   ![Android](https://img.shields.io/badge/Android-Supported-green?logo=android)
   ![iOS](https://img.shields.io/badge/iOS-Supported-black?logo=apple)
@@ -160,8 +160,8 @@ Vaulted will rely heavily on organic growth and community evangelism.
 |-------|--------|-------------|
 | **Phase 0** | ✅ COMPLETE | Project Foundation, Clean Architecture Setup |
 | **Phase 1** | ✅ COMPLETE | Local Database (Drift), DAO Layer, Domain Repositories |
-| **Phase 2** | 🏃 IN PROGRESS | Supabase Authentication & Profile Sync |
-| **Phase 3** | ⏳ PLANNED | Folder Management UI & Logic |
+| **Phase 2** | ✅ COMPLETE | Supabase Authentication & Profile Sync |
+| **Phase 3** | 🏃 IN PROGRESS | Folder Management UI & Logic |
 | **Phase 4** | ⏳ PLANNED | Universal Share Sheet & Duplicate Detection |
 | **Phase 5** | ⏳ PLANNED | Background Metadata Fetching System |
 | **Phase 6** | ⏳ PLANNED | Offline & Remote Full-Text Search |
