@@ -30,4 +30,27 @@ class FolderDao extends DatabaseAccessor<AppDatabase> with _$FolderDaoMixin {
           updatedAt: Value(DateTime.now().toUtc()),
         ));
   }
+
+  Future<int> restoreFolder(String id) {
+    return (update(folders)..where((t) => t.id.equals(id)))
+        .write(FoldersCompanion(
+          deletedAt: const Value(null),
+          updatedAt: Value(DateTime.now().toUtc()),
+        ));
+  }
+
+  Future<void> updateFolderPositions(List<String> orderedFolderIds) async {
+    await batch((batch) {
+      for (int i = 0; i < orderedFolderIds.length; i++) {
+        batch.update(
+          folders,
+          FoldersCompanion(
+            position: Value(i),
+            updatedAt: Value(DateTime.now().toUtc()),
+          ),
+          where: (t) => t.id.equals(orderedFolderIds[i]),
+        );
+      }
+    });
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../../domain/entities/folder.dart' as entity;
 import '../../domain/repositories/folder_repository.dart';
 import '../../database/daos/folder_dao.dart';
 import '../../database/app_database.dart';
@@ -10,8 +11,19 @@ class FolderRepositoryImpl implements FolderRepository {
   FolderRepositoryImpl(this._folderDao);
 
   @override
-  Future<List<dynamic>> getActiveFolders(String userId) async {
-    return await _folderDao.getActiveFolders(userId);
+  Future<List<entity.Folder>> getActiveFolders(String userId) async {
+    final driftFolders = await _folderDao.getActiveFolders(userId);
+    return driftFolders.map((f) => entity.Folder(
+      id: f.id,
+      userId: f.userId,
+      name: f.name,
+      icon: f.icon,
+      color: f.color,
+      position: f.position,
+      createdAt: f.createdAt,
+      updatedAt: f.updatedAt,
+      deletedAt: f.deletedAt,
+    )).toList();
   }
 
   @override
@@ -45,5 +57,15 @@ class FolderRepositoryImpl implements FolderRepository {
   @override
   Future<void> softDeleteFolder(String id) async {
     await _folderDao.softDeleteFolder(id, DateTime.now().toUtc());
+  }
+
+  @override
+  Future<void> restoreFolder(String id) async {
+    await _folderDao.restoreFolder(id);
+  }
+
+  @override
+  Future<void> updateFolderPositions(List<String> orderedFolderIds) async {
+    await _folderDao.updateFolderPositions(orderedFolderIds);
   }
 }

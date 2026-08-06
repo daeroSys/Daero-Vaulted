@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../features/splash/splash_screen.dart';
 import '../widgets/placeholder_screen.dart';
 import '../presentation/screens/login_screen.dart';
+import '../presentation/screens/folders_screen.dart';
 import '../application/providers/auth_provider.dart';
 
 // Helper class to convert a Stream into a Listenable for GoRouter
@@ -63,7 +64,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const PlaceholderScreen(title: 'Home'),
+        builder: (context, state) => const FoldersScreen(),
       ),
       GoRoute(
         path: '/settings',
@@ -87,7 +88,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/folders',
-        builder: (context, state) => const PlaceholderScreen(title: 'Folders'),
+        builder: (context, state) => const FoldersScreen(),
       ),
       GoRoute(
         path: '/search',
