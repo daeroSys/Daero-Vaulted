@@ -139,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withOpacity(0.3),
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
             ),
@@ -151,7 +151,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               width: 400,
               height: 400,
               decoration: BoxDecoration(
-                color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
             ),
@@ -180,12 +180,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
                             )
                           ],
@@ -216,7 +216,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -230,9 +230,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                             width: double.infinity,
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                             ),
                             child: Column(
                               children: [
@@ -259,15 +259,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 const SizedBox(height: 24),
                                 Row(
                                   children: [
-                                    Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                       child: Text(
                                         'OR',
-                                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                                       ),
                                     ),
-                                    Expanded(child: Divider(color: Colors.white.withOpacity(0.2))),
+                                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
                                   ],
                                 ),
                                 const SizedBox(height: 24),
@@ -324,10 +324,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+        prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
+        fillColor: Colors.white.withValues(alpha: 0.1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -347,15 +347,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       height: 56,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isPrimary ? Colors.white : Colors.white.withOpacity(0.1),
+        color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isPrimary ? Colors.transparent : Colors.white.withOpacity(0.2),
+          color: isPrimary ? Colors.transparent : Colors.white.withValues(alpha: 0.2),
         ),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
                 )

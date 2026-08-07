@@ -1,0 +1,15 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vaulted/core/providers.dart';
+import 'package:vaulted/data/repositories/content_repository_impl.dart';
+import 'package:vaulted/domain/repositories/content_repository.dart';
+import 'package:vaulted/core/services/duplicate_detection_service.dart';
+
+final contentRepositoryProvider = Provider<ContentRepository>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return ContentRepositoryImpl(db.contentDao);
+});
+
+final duplicateDetectionServiceProvider = Provider<DuplicateDetectionService>((ref) {
+  final repo = ref.watch(contentRepositoryProvider);
+  return DuplicateDetectionService(repo);
+});

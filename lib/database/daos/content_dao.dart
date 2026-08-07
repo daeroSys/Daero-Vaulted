@@ -7,7 +7,7 @@ part 'content_dao.g.dart';
 
 @DriftAccessor(tables: [Content, SavedItems])
 class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
-  ContentDao(AppDatabase db) : super(db);
+  ContentDao(super.db);
 
   Future<ContentData?> getContentById(String id) {
     return (select(content)..where((t) => t.id.equals(id))).getSingleOrNull();

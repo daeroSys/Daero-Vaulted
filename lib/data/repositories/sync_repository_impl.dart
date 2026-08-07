@@ -20,7 +20,7 @@ class SyncRepositoryImpl implements SyncRepository {
       syncOperation: Value(operation),
       priority: Value(priority),
       payload: Value(jsonEncode(payload)),
-      syncStatus: Value(SyncStatus.pending),
+      syncStatus: const Value(SyncStatus.pending),
       createdAt: Value(DateTime.now().toUtc()),
     ));
   }

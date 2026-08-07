@@ -5,7 +5,7 @@ part 'search_dao.g.dart';
 
 @DriftAccessor(include: {'../search.drift'})
 class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
-  SearchDao(AppDatabase db) : super(db);
+  SearchDao(super.db);
 
   Future<List<QueryRow>> search(String query) {
     // Note: To prevent SQL injection in match queries, ensure query is properly escaped.

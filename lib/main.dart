@@ -19,7 +19,7 @@ void main() async {
   
   // Load environment variables
   try {
-    await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: '.env');
   } catch (e) {
     debugPrint('Failed to load .env file: $e');
   }

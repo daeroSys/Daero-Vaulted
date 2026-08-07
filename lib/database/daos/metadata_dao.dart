@@ -6,7 +6,7 @@ part 'metadata_dao.g.dart';
 
 @DriftAccessor(tables: [ContentMetadata])
 class MetadataDao extends DatabaseAccessor<AppDatabase> with _$MetadataDaoMixin {
-  MetadataDao(AppDatabase db) : super(db);
+  MetadataDao(super.db);
 
   Future<ContentMetadataData?> getMetadataByContentId(String contentId) {
     return (select(contentMetadata)..where((t) => t.contentId.equals(contentId))).getSingleOrNull();

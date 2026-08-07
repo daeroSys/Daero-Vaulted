@@ -1,12 +1,11 @@
-import '../entities/enums.dart';
+import '../entities/content.dart';
 
 abstract class ContentRepository {
-  Future<void> saveContent({
+  Future<Content?> findContentByCanonicalUrl(String canonicalUrl);
+  
+  Future<SavedItem> saveItem({
     required String userId,
-    required String url,
-    required String canonicalUrl,
-    required Platform platform,
-    required ContentType type,
+    required Content content,
     String? folderId,
     String? notes,
   });

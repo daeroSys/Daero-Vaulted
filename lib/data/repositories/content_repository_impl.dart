@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../domain/repositories/content_repository.dart';
-import '../../domain/entities/enums.dart';
+import '../../domain/entities/content.dart' as entity;
 import '../../database/daos/content_dao.dart';
 import '../../database/app_database.dart';
 import '../../core/utils/uuid_utils.dart';
@@ -11,43 +11,66 @@ class ContentRepositoryImpl implements ContentRepository {
   ContentRepositoryImpl(this._contentDao);
 
   @override
-  Future<void> saveContent({
+  Future<entity.Content?> findContentByCanonicalUrl(String canonicalUrl) async {
+    final driftContent = await _contentDao.getContentByCanonicalUrl(canonicalUrl);
+    if (driftContent == null) return null;
+    return entity.Content(
+      id: driftContent.id,
+      platform: driftContent.platform,
+      type: driftContent.contentType,
+      url: driftContent.url,
+      canonicalUrl: driftContent.canonicalUrl,
+      createdAt: driftContent.createdAt,
+      updatedAt: driftContent.updatedAt,
+      deletedAt: driftContent.deletedAt,
+    );
+  }
+
+  @override
+  Future<entity.SavedItem> saveItem({
     required String userId,
-    required String url,
-    required String canonicalUrl,
-    required Platform platform,
-    required ContentType type,
+    required entity.Content content,
     String? folderId,
     String? notes,
   }) async {
-    // Deduplication logic
-    ContentData? content = await _contentDao.getContentByCanonicalUrl(canonicalUrl);
-    
-    if (content == null) {
-      final newContentId = UuidUtils.generateV7();
+    // 1. Ensure content exists in DB
+    final existingContent = await _contentDao.getContentById(content.id);
+    if (existingContent == null) {
       await _contentDao.insertContent(ContentCompanion(
-        id: Value(newContentId),
-        platform: Value(platform),
-        contentType: Value(type),
-        url: Value(url),
-        canonicalUrl: Value(canonicalUrl),
-        createdAt: Value(DateTime.now().toUtc()),
-        updatedAt: Value(DateTime.now().toUtc()),
+        id: Value(content.id),
+        platform: Value(content.platform),
+        contentType: Value(content.type),
+        url: Value(content.url),
+        canonicalUrl: Value(content.canonicalUrl),
+        createdAt: Value(content.createdAt),
+        updatedAt: Value(content.updatedAt),
       ));
-      content = await _contentDao.getContentById(newContentId);
     }
     
+    // 2. Create SavedItem
+    final savedItemId = UuidUtils.generateV7();
+    final now = DateTime.now().toUtc();
+    
     await _contentDao.insertSavedItem(SavedItemsCompanion(
-      id: Value(UuidUtils.generateV7()),
+      id: Value(savedItemId),
       userId: Value(userId),
       folderId: Value(folderId),
-      contentId: Value(content!.id),
-      notes: Value(notes),
-      savedAt: Value(DateTime.now().toUtc()),
-      updatedAt: Value(DateTime.now().toUtc()),
+      contentId: Value(content.id),
+      notes: Value(notes ?? ''),
+      savedAt: Value(now),
+      updatedAt: Value(now),
     ));
+    
+    return entity.SavedItem(
+      id: savedItemId,
+      userId: userId,
+      folderId: folderId,
+      contentId: content.id,
+      notes: notes ?? '',
+      savedAt: now,
+      updatedAt: now,
+    );
   }
-
   @override
   Future<void> updateSavedItem(String id, {String? folderId, String? notes, bool? isFavorite, bool? isArchived}) async {
     final existing = await _contentDao.getSavedItem(id);

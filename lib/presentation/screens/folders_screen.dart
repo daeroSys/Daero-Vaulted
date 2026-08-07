@@ -4,12 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
 import 'package:vaulted/presentation/widgets/folder_form_bottom_sheet.dart';
+import 'package:vaulted/core/services/share_service.dart';
+import 'package:vaulted/presentation/widgets/save_share_bottom_sheet.dart';
 
 class FoldersScreen extends ConsumerWidget {
   const FoldersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep ShareService alive to capture intents
+    ref.watch(shareServiceProvider);
+    
+    ref.listen(shareIntentStreamProvider, (previous, next) {
+      next.whenData((share) {
+        SaveShareBottomSheet.show(context, share);
+      });
+    });
+
     final foldersState = ref.watch(foldersProvider);
 
     return Scaffold(
@@ -76,7 +87,7 @@ class FoldersScreen extends ConsumerWidget {
                   right: 16,
                 ),
                 itemCount: folders.length,
-                onReorder: (oldIndex, newIndex) {
+                onReorderItem: (oldIndex, newIndex) {
                   ref.read(foldersProvider.notifier).reorderFolders(oldIndex, newIndex);
                 },
                 itemBuilder: (context, index) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +17,7 @@ class GoRouterRefreshStream extends ChangeNotifier {
     );
   }
 
-  late final _subscription;
+  late final StreamSubscription _subscription;
 
   @override
   void dispose() {

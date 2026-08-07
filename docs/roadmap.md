@@ -17,13 +17,14 @@ Welcome to the implementation contract for the Vaulted project.
 ✅ Architecture Approved
 ✅ Phase 0 - Project Foundation COMPLETE
 ✅ Phase 1 - Local Database & Domain Layer COMPLETE
-✅ Phase 2 - Authentication COMPLETE
+✅ Phase 2 - Authentication PARTIAL (iOS deferred)
 ✅ Phase 3 - Folder Management COMPLETE
+✅ Phase 4 - Share Sheet PARTIAL (iOS deferred)
 
 **Current Phase**
-➡ **Phase 4 - Share Sheet**
+➡ **Phase 5 - Metadata System**
 
-*Future phases must always begin from Phase 4.*
+*Future phases must always begin from Phase 5.*
 
 ---
 
@@ -111,7 +112,7 @@ Implement user authentication and session management.
 
 **Deliverables**
 *   Google Sign-In
-*   Apple Sign-In
+*   Apple Sign-In (Deferred: Requires Paid Developer Account)
 *   Email Authentication
 *   Secure Storage integration
 *   Session management
@@ -171,7 +172,7 @@ Implement native share intent handling to parse incoming shared links.
 
 **Deliverables**
 *   Android Share Intent
-*   iOS Share Extension
+*   iOS Share Extension (Deferred: Requires Paid Developer Account)
 *   ShareParser implementation
 *   Canonical URLs normalization
 *   DuplicateDetectionService integration
@@ -189,9 +190,9 @@ Implement native share intent handling to parse incoming shared links.
 *   Phase 1, Phase 3
 
 **Validation Checklist**
-- [ ] Compiles successfully
-- [ ] Passes `flutter analyze`
-- [ ] Android intent filters work
+- [x] Compiles successfully
+- [x] Passes `flutter analyze`
+- [x] Android intent filters work
 
 ---
 

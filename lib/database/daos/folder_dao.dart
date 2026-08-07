@@ -6,7 +6,7 @@ part 'folder_dao.g.dart';
 
 @DriftAccessor(tables: [Folders])
 class FolderDao extends DatabaseAccessor<AppDatabase> with _$FolderDaoMixin {
-  FolderDao(AppDatabase db) : super(db);
+  FolderDao(super.db);
 
   Future<List<Folder>> getActiveFolders(String userId) {
     return (select(folders)
