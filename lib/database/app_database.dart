@@ -13,6 +13,7 @@ import 'tables/tags.dart';
 import 'tables/content_tags.dart';
 import 'tables/saved_items.dart';
 import 'tables/sync_queue.dart';
+import 'tables/recent_searches.dart';
 
 import '../domain/entities/enums.dart';
 
@@ -36,6 +37,7 @@ part 'app_database.g.dart';
     ContentTags,
     SavedItems,
     SyncQueue,
+    RecentSearches,
   ],
   daos: [
     UserDao,
@@ -53,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
   
   @override
   MigrationStrategy get migration {
@@ -62,7 +64,25 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Handle migrations here
+        if (from < 2) {
+          await m.createTable(recentSearches);
+          // Create the FTS5 virtual table added in Phase 6
+          await customStatement('''
+            CREATE VIRTUAL TABLE IF NOT EXISTS fts_search USING fts5(
+              contentId UNINDEXED,
+              title,
+              creator,
+              description,
+              notes,
+              tags,
+              tokenize='porter unicode61'
+            );
+          ''');
+        }
+        if (from < 3) {
+          // Intentionally left blank. 
+          // We decided to skip backfilling existing data for FTS.
+        }
       },
     );
   }

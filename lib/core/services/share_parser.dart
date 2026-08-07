@@ -38,8 +38,14 @@ class YouTubeParser implements ShareParserInterface {
       final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : '';
       canonicalUrl = 'https://www.youtube.com/watch?v=$videoId';
     } else if (uri.host.contains('youtube.com')) {
-      final videoId = uri.queryParameters['v'] ?? '';
-      canonicalUrl = 'https://www.youtube.com/watch?v=$videoId';
+      if (uri.pathSegments.contains('shorts')) {
+        final shortIndex = uri.pathSegments.indexOf('shorts');
+        final videoId = (uri.pathSegments.length > shortIndex + 1) ? uri.pathSegments[shortIndex + 1] : '';
+        canonicalUrl = 'https://www.youtube.com/watch?v=$videoId';
+      } else {
+        final videoId = uri.queryParameters['v'] ?? '';
+        canonicalUrl = 'https://www.youtube.com/watch?v=$videoId';
+      }
     }
 
     return ParsedShare(

@@ -7,3 +7,8 @@ CREATE VIRTUAL TABLE fts_search USING fts5(
   tags,
   tokenize='porter unicode61'
 );
+
+insertOrReplaceFts: INSERT OR REPLACE INTO fts_search (contentId, title, creator, description, notes, tags)
+VALUES (:contentId, :title, :creator, :description, :notes, :tags);
+
+matchFts: SELECT contentId FROM fts_search WHERE fts_search MATCH :query ORDER BY rank;

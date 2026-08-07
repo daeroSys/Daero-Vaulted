@@ -21,11 +21,12 @@ Welcome to the implementation contract for the Vaulted project.
 ✅ Phase 3 - Folder Management COMPLETE
 ✅ Phase 4 - Share Sheet PARTIAL (iOS deferred)
 ✅ Phase 5 - Metadata System COMPLETE
+✅ Phase 6 - Search COMPLETE
 
 **Current Phase**
-➡ **Phase 6 - Search**
+➡ **Phase 7 - Offline Synchronization**
 
-*Future phases must always begin from Phase 6.*
+*Future phases must always begin from Phase 7.*
 
 ---
 
@@ -248,9 +249,9 @@ Implement local and remote search capabilities.
 *   Phase 1
 
 **Validation Checklist**
-- [ ] Compiles successfully
-- [ ] Passes `flutter analyze`
-- [ ] FTS resolves results instantly
+- [x] Compiles successfully
+- [x] Passes `flutter analyze`
+- [x] FTS resolves results instantly
 
 ---
 

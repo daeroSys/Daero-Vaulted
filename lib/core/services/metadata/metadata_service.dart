@@ -4,19 +4,23 @@ import 'package:vaulted/core/services/metadata/metadata_provider.dart';
 import 'package:vaulted/core/services/metadata/thumbnail_cache_service.dart';
 import 'package:vaulted/domain/entities/enums.dart';
 import 'package:vaulted/domain/repositories/metadata_repository.dart';
+import 'package:vaulted/domain/repositories/search_repository.dart';
 
 class MetadataService {
   final MetadataRepository _metadataRepository;
+  final SearchRepository _searchRepository;
   final ThumbnailCacheService _thumbnailCacheService;
   final Map<Platform, MetadataProvider> _providers;
   final MetadataProvider _genericProvider;
 
   MetadataService({
     required MetadataRepository metadataRepository,
+    required SearchRepository searchRepository,
     required ThumbnailCacheService thumbnailCacheService,
     required Map<Platform, MetadataProvider> providers,
     required MetadataProvider genericProvider,
   })  : _metadataRepository = metadataRepository,
+        _searchRepository = searchRepository,
         _thumbnailCacheService = thumbnailCacheService,
         _providers = providers,
         _genericProvider = genericProvider;
@@ -47,6 +51,17 @@ class MetadataService {
         duration: extracted.duration,
         status: MetadataStatus.ready,
       );
+      
+      // Index for FTS5 Search
+      await _searchRepository.indexContent(
+        contentId, 
+        extracted.title, 
+        extracted.description ?? '', 
+        extracted.creator ?? '', 
+        '', // Notes are added by the user elsewhere, not from metadata
+        [], // Tags are added elsewhere
+      );
+
       debugPrint('✅ Metadata saved successfully for $contentId!');
       debugPrint('   Title: ${extracted.title}');
       debugPrint('   Creator: ${extracted.creator}');

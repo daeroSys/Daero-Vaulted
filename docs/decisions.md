@@ -33,3 +33,19 @@ This document tracks all deviations, deferrals, additions, and significant techn
 **Context:** The original roadmap did not explicitly allocate a phase for the UI that displays the contents inside a folder. Phase 5 fetched the metadata, and Phase 6 was slated for Search.
 **Decision:** Inserted "Phase 5.5" immediately after Phase 5 to build the `FolderDetailsScreen`. This allowed us to immediately visually verify the metadata and thumbnails fetched in Phase 5 before moving on to Search.
 **Consequences:** Replaced the default folder tap behavior (which previously opened the Edit Folder sheet) with intuitive navigation to the new grid view. Editing folders was moved to a pencil icon in the App Bar.
+
+---
+
+## Decision 005: Deferred Postgres Search (Phase 6)
+**Date:** August 2026
+**Context:** The original Phase 6 scope included Postgres Full Text Search alongside local SQLite FTS5.
+**Decision:** We deferred remote Postgres search. The local FTS5 implementation handles search flawlessly and instantly, adhering strictly to the local-first mandate.
+**Next Steps:** Remote search capabilities can be re-evaluated after Phase 7 (Synchronization) when the cloud database mirrors the local data perfectly.
+
+---
+
+## Decision 006: Integration of Microlink API for Metadata (Phase 6)
+**Date:** August 2026
+**Context:** Standard HTML scraping (Decision 003) failed for Facebook and Instagram links due to aggressive scraper blocking (403 Forbidden) and login walls. 
+**Decision:** We integrated the Microlink API specifically for Facebook and Instagram to securely bypass login walls and extract rich OpenGraph metadata (titles, creators, and thumbnails). We also implemented a graceful fallback to prevent scraping failures from crashing the app.
+**Consequences:** Improved reliability for social media links. Other platforms (TikTok, YouTube) still use direct oEmbed endpoints.

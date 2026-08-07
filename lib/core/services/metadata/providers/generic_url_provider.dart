@@ -57,7 +57,13 @@ class GenericUrlProvider implements MetadataProvider {
         thumbnailUrl: thumbnailUrl,
       );
     } catch (e) {
-      throw Exception('Failed to fetch generic metadata: $e');
+      // Graceful fallback if scraping fails entirely (e.g. 403 Forbidden)
+      final uri = Uri.tryParse(url);
+      return ExtractedMetadata(
+        title: uri?.host ?? 'Saved Link',
+        description: null,
+        thumbnailUrl: null,
+      );
     }
   }
 }

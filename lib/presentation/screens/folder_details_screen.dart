@@ -125,7 +125,7 @@ class FolderDetailsScreen extends ConsumerWidget {
   }
 }
 
-class _SavedItemCard extends StatelessWidget {
+class _SavedItemCard extends ConsumerWidget {
   final SavedItemView item;
 
   const _SavedItemCard({required this.item});
@@ -138,9 +138,31 @@ class _SavedItemCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: _launchUrl,
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Remove Video'),
+            content: const Text('Are you sure you want to remove this video from your folder?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  ref.read(contentRepositoryProvider).softDeleteSavedItem(item.savedItem.id);
+                  Navigator.pop(context);
+                },
+                child: const Text('Remove', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        );
+      },
       child: GlassContainer(
         padding: EdgeInsets.zero,
         borderRadius: BorderRadius.circular(16),
