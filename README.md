@@ -6,7 +6,7 @@
   Vaulted is an offline-first, cross-platform personal knowledge library designed to rescue the content you learn from social media and the web. It centralizes, organizes, and enriches your saved content, ensuring that what you find today is never lost tomorrow.
 
   ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
-  ![Current Phase](https://img.shields.io/badge/Phase-5%3A%20Metadata%20System-blue)
+  ![Current Phase](https://img.shields.io/badge/Phase-6%3A%20Search-blue)
   ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
   ![Android](https://img.shields.io/badge/Android-Supported-green?logo=android)
   ![iOS](https://img.shields.io/badge/iOS-Supported-black?logo=apple)
@@ -163,8 +163,8 @@ Vaulted will rely heavily on organic growth and community evangelism.
 | **Phase 2** | ✅ COMPLETE | Supabase Authentication & Profile Sync |
 | **Phase 3** | ✅ COMPLETE | Folder Management UI & Logic |
 | **Phase 4** | ✅ COMPLETE (iOS Deferred) | Universal Share Sheet & Duplicate Detection |
-| **Phase 5** | 🏃 IN PROGRESS | Background Metadata Fetching System |
-| **Phase 6** | ⏳ PLANNED | Offline & Remote Full-Text Search |
+| **Phase 5** | ✅ COMPLETE | Background Metadata Fetching System |
+| **Phase 6** | 🏃 IN PROGRESS | Offline & Remote Full-Text Search |
 | **Phase 7** | ⏳ PLANNED | Offline Sync Queue & Conflict Resolution |
 | **Phase 8** | ⏳ PLANNED | UI Polish, Animations, Material 3 |
 | **Phase 9** | ⏳ PLANNED | Push & Local Notifications |

@@ -8,6 +8,7 @@ mixin _$ContentDaoMixin on DatabaseAccessor<AppDatabase> {
   $UsersTable get users => attachedDatabase.users;
   $FoldersTable get folders => attachedDatabase.folders;
   $SavedItemsTable get savedItems => attachedDatabase.savedItems;
+  $ContentMetadataTable get contentMetadata => attachedDatabase.contentMetadata;
   ContentDaoManager get managers => ContentDaoManager(this);
 }
 
@@ -22,4 +23,9 @@ class ContentDaoManager {
       $$FoldersTableTableManager(_db.attachedDatabase, _db.folders);
   $$SavedItemsTableTableManager get savedItems =>
       $$SavedItemsTableTableManager(_db.attachedDatabase, _db.savedItems);
+  $$ContentMetadataTableTableManager get contentMetadata =>
+      $$ContentMetadataTableTableManager(
+        _db.attachedDatabase,
+        _db.contentMetadata,
+      );
 }

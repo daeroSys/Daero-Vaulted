@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
 import 'package:vaulted/presentation/widgets/folder_form_bottom_sheet.dart';
@@ -125,7 +126,7 @@ class FoldersScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: GestureDetector(
                         onTap: () {
-                          FolderFormBottomSheet.show(context, folder: folder);
+                          context.push('/folders/${folder.id}');
                         },
                         child: GlassContainer(
                           padding: const EdgeInsets.all(16),

@@ -51,3 +51,21 @@ class SavedItem {
 
   bool get isDeleted => deletedAt != null;
 }
+
+class SavedItemView {
+  final SavedItem savedItem;
+  final Content content;
+  final String? title;
+  final String? description;
+  final String? thumbnail;
+  final int? duration;
+
+  SavedItemView({
+    required this.savedItem,
+    required this.content,
+    this.title,
+    this.description,
+    this.thumbnail,
+    this.duration,
+  });
+}

@@ -95,4 +95,44 @@ class ContentRepositoryImpl implements ContentRepository {
       ).toCompanion(true));
     }
   }
+  
+  @override
+  Stream<List<entity.SavedItemView>> watchItemsInFolder(String folderId) {
+    return _contentDao.watchItemsInFolderQuery(folderId).map((rows) {
+      return rows.map((row) {
+        final savedItemData = row.readTable(_contentDao.savedItems);
+        final contentData = row.readTable(_contentDao.content);
+        final metadataData = row.readTableOrNull(_contentDao.contentMetadata);
+
+        return entity.SavedItemView(
+          savedItem: entity.SavedItem(
+            id: savedItemData.id,
+            userId: savedItemData.userId,
+            folderId: savedItemData.folderId,
+            contentId: savedItemData.contentId,
+            notes: savedItemData.notes ?? '',
+            isFavorite: savedItemData.isFavorite,
+            isArchived: savedItemData.isArchived,
+            savedAt: savedItemData.savedAt,
+            updatedAt: savedItemData.updatedAt,
+            deletedAt: savedItemData.deletedAt,
+          ),
+          content: entity.Content(
+            id: contentData.id,
+            platform: contentData.platform,
+            type: contentData.contentType,
+            url: contentData.url,
+            canonicalUrl: contentData.canonicalUrl,
+            createdAt: contentData.createdAt,
+            updatedAt: contentData.updatedAt,
+            deletedAt: contentData.deletedAt,
+          ),
+          title: metadataData?.title,
+          description: metadataData?.description,
+          thumbnail: metadataData?.thumbnail,
+          duration: metadataData?.duration,
+        );
+      }).toList();
+    });
+  }
 }

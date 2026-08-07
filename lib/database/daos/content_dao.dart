@@ -2,10 +2,11 @@ import 'package:drift/drift.dart';
 import '../app_database.dart';
 import '../tables/content.dart';
 import '../tables/saved_items.dart';
+import '../tables/content_metadata.dart';
 
 part 'content_dao.g.dart';
 
-@DriftAccessor(tables: [Content, SavedItems])
+@DriftAccessor(tables: [Content, SavedItems, ContentMetadata])
 class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
   ContentDao(super.db);
 
@@ -28,5 +29,16 @@ class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
   
   Future<SavedItem?> getSavedItem(String id) {
     return (select(savedItems)..where((t) => t.id.equals(id))).getSingleOrNull();
+  }
+
+  Stream<List<TypedResult>> watchItemsInFolderQuery(String folderId) {
+    final query = select(savedItems).join([
+      innerJoin(content, content.id.equalsExp(savedItems.contentId)),
+      leftOuterJoin(contentMetadata, contentMetadata.contentId.equalsExp(content.id)),
+    ])
+    ..where(savedItems.folderId.equals(folderId) & savedItems.deletedAt.isNull());
+    
+    query.orderBy([OrderingTerm.desc(savedItems.savedAt)]);
+    return query.watch();
   }
 }

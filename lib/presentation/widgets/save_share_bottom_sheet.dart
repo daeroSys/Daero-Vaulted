@@ -4,6 +4,7 @@ import 'package:vaulted/application/providers/auth_provider.dart';
 import 'package:vaulted/application/providers/content_provider.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/core/services/share_parser.dart';
+import 'package:vaulted/application/providers/metadata_providers.dart';
 import 'package:vaulted/domain/entities/content.dart';
 import 'package:vaulted/core/utils/uuid_utils.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
@@ -82,6 +83,13 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
       content: contentToSave,
       folderId: _selectedFolderId,
       notes: _noteController.text.trim(),
+    );
+    
+    // Trigger background metadata fetch
+    ref.read(metadataServiceProvider).fetchMetadata(
+      contentToSave.id,
+      contentToSave.url,
+      contentToSave.platform,
     );
     
     if (mounted) {
