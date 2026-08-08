@@ -115,6 +115,7 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
               decoration: const InputDecoration(
                 hintText: 'Folder Name',
                 border: InputBorder.none,
+                fillColor: Colors.transparent,
               ),
               autofocus: true,
               onSubmitted: (_) => _save(),

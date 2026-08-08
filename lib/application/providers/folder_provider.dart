@@ -13,11 +13,11 @@ final folderRepositoryProvider = Provider<FolderRepository>((ref) {
   return FolderRepositoryImpl(db.folderDao, syncRepo);
 });
 
-final foldersProvider = AsyncNotifierProvider<FoldersNotifier, List<Folder>>(() {
+final foldersProvider = AsyncNotifierProvider.autoDispose<FoldersNotifier, List<Folder>>(() {
   return FoldersNotifier();
 });
 
-class FoldersNotifier extends AsyncNotifier<List<Folder>> {
+class FoldersNotifier extends AutoDisposeAsyncNotifier<List<Folder>> {
   @override
   Future<List<Folder>> build() async {
     return _fetchFolders();

@@ -26,6 +26,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     syncRepository: ref.watch(syncRepositoryProvider),
     connectivityService: ref.watch(connectivityServiceProvider),
     supabaseClient: Supabase.instance.client,
+    db: ref.watch(appDatabaseProvider),
   );
 });
 

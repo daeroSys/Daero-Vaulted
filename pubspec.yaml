@@ -60,7 +60,10 @@ dependencies:
   url_launcher: ^6.3.2
   connectivity_plus: ^7.3.1
   workmanager: ^0.10.7
-
+  flutter_animate: ^4.5.2
+  shimmer: ^3.0.0
+  google_fonts: ^8.2.1
+  flutter_native_splash: ^2.4.8
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,9 +81,18 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo1.png"
+  image_path: "assets/vaultedlogo.jpg"
   adaptive_icon_background: "#6750A4"
-  adaptive_icon_foreground: "assets/logo1.png"
+  adaptive_icon_foreground: "assets/vaultedlogo.jpg"
+
+flutter_native_splash:
+  color: "#ffffff"
+  color_dark: "#0F1115"
+  image: "assets/vaultedlogo.jpg"
+  android_12:
+    image: "assets/vaultedlogo.jpg"
+    icon_background_color: "#ffffff"
+    icon_background_color_dark: "#0F1115"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -94,6 +106,7 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

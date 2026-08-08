@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class GlassContainer extends StatelessWidget {
+class GlassContainer extends StatefulWidget {
   final Widget child;
   final double blur;
   final double opacity;
@@ -11,6 +11,7 @@ class GlassContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final Border? border;
+  final VoidCallback? onTap;
 
   const GlassContainer({
     super.key,
@@ -23,37 +24,90 @@ class GlassContainer extends StatelessWidget {
     this.width,
     this.height,
     this.border,
+    this.onTap,
   });
+
+  @override
+  State<GlassContainer> createState() => _GlassContainerState();
+}
+
+class _GlassContainerState extends State<GlassContainer> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onTap != null) _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    if (widget.onTap != null) _controller.reverse();
+    widget.onTap?.call();
+  }
+  
+  void _handleTapCancel() {
+    if (widget.onTap != null) _controller.reverse();
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final glassColor = isDarkMode ? Colors.white : Colors.black;
-    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(16);
+    final effectiveBorderRadius = widget.borderRadius ?? BorderRadius.circular(16);
 
-    return Container(
-      margin: margin,
-      width: width,
-      height: height,
+    Widget container = Container(
+      margin: widget.margin,
+      width: widget.width,
+      height: widget.height,
       child: ClipRRect(
         borderRadius: effectiveBorderRadius,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
           child: Container(
-            padding: padding,
+            padding: widget.padding,
             decoration: BoxDecoration(
-              color: glassColor.withValues(alpha: opacity),
+              color: glassColor.withValues(alpha: widget.opacity),
               borderRadius: effectiveBorderRadius,
-              border: border ??
+              border: widget.border ??
                   Border.all(
-                    color: glassColor.withValues(alpha: opacity * 1.5),
+                    color: glassColor.withValues(alpha: widget.opacity * 1.5),
                     width: 1.0,
                   ),
             ),
-            child: child,
+            child: widget.child,
           ),
         ),
       ),
     );
+
+    if (widget.onTap != null) {
+      container = GestureDetector(
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        child: container,
+      );
+    }
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: container,
+    );
   }
 }
+

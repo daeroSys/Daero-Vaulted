@@ -68,3 +68,11 @@ This document tracks all deviations, deferrals, additions, and significant techn
 2. We broadened Android intent filters to explicitly include both `text/plain` and `*/*` to ensure compatibility with strict apps like YouTube and TikTok.
 3. We maintained our shared `content` table architecture (no `user_id` on the `content` table) relying entirely on `saved_items` as the joining table.
 **Consequences:** The `users` table is always perfectly synchronized with Supabase Auth. Content de-duplication works perfectly. The app reliably receives share intents across all major apps.
+
+---
+
+## Decision 009: Native Share Extension UX via App Lifecycle (Phase 8)
+**Date:** August 2026
+**Context:** Creating a true floating "Share Extension" overlay that works smoothly over external apps like YouTube requires complex native iOS Swift and Android Kotlin UI, breaking cross-platform uniformity.
+**Decision:** We implemented a "Get In, Get Out" UX pattern using pure Flutter. When shared to, the app opens directly to the `SaveShareBottomSheet`. Upon saving, the app invokes a custom Kotlin `MethodChannel` (`moveTaskToBack(true)`) to instantly background the app, returning the user exactly to their previous context. 
+**Consequences:** Users get the seamless speed and feel of a native Share Extension without leaving the Flutter codebase. Backgrounding (instead of killing) the app allows asynchronous `MetadataService` tasks to safely complete before the OS suspends the isolate.

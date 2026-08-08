@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vaulted/application/providers/auth_provider.dart';
 import 'package:vaulted/application/providers/content_provider.dart';
@@ -8,13 +9,16 @@ import 'package:vaulted/application/providers/metadata_providers.dart';
 import 'package:vaulted/domain/entities/content.dart';
 import 'package:vaulted/core/utils/uuid_utils.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
+import 'package:vaulted/presentation/widgets/shimmer_loading.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class SaveShareBottomSheet extends ConsumerStatefulWidget {
   final ParsedShare share;
+  final bool closeAppOnSave;
 
-  const SaveShareBottomSheet({super.key, required this.share});
+  const SaveShareBottomSheet({super.key, required this.share, this.closeAppOnSave = false});
 
-  static Future<void> show(BuildContext context, ParsedShare share) {
+  static Future<void> show(BuildContext context, ParsedShare share, {bool closeAppOnSave = false}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -23,7 +27,7 @@ class SaveShareBottomSheet extends ConsumerStatefulWidget {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SaveShareBottomSheet(share: share),
+        child: SaveShareBottomSheet(share: share, closeAppOnSave: closeAppOnSave),
       ),
     );
   }
@@ -97,6 +101,12 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Saved to Vaulted!')),
       );
+      
+      if (widget.closeAppOnSave) {
+        // Send the app back to the background so the user is instantly returned to their previous app (e.g., YouTube)
+        const platform = MethodChannel('com.example.vaulted/background');
+        platform.invokeMethod('moveToBackground');
+      }
     }
   }
 
@@ -111,14 +121,20 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
       ),
       padding: const EdgeInsets.all(24),
       child: _isLoading 
-        ? const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()))
+        ? const ShimmerContainer(height: 300, width: double.infinity)
         : Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Save to Vaulted',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Image.asset('assets/vaultedlogo.jpg', width: 28, height: 28),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Save to Vaulted',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
@@ -144,7 +160,7 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
                       Expanded(child: Text('You have already saved this link before. Saving again will create a new reference.')),
                     ],
                   ),
-                ),
+                ).animate().fade(duration: 300.ms).scale(begin: const Offset(0.95, 0.95)),
                 const SizedBox(height: 16),
               ],
               
@@ -157,6 +173,7 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
                   decoration: const InputDecoration(
                     hintText: 'Why are you saving this?',
                     border: InputBorder.none,
+                    fillColor: Colors.transparent,
                   ),
                   maxLines: 3,
                   minLines: 1,
@@ -179,10 +196,9 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
                       itemBuilder: (context, index) {
                         final folder = folders[index];
                         final isSelected = _selectedFolderId == folder.id;
-                        return GestureDetector(
+                        return GlassContainer(
                           onTap: () => setState(() => _selectedFolderId = folder.id),
-                          child: GlassContainer(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             opacity: isSelected ? 0.3 : 0.05,
                             border: isSelected ? Border.all(color: folder.displayColor, width: 2) : null,
                             child: Row(
@@ -194,12 +210,16 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
                                 )),
                               ],
                             ),
-                          ),
-                        );
+                          );
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => Row(
+                    children: List.generate(3, (index) => const Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: ShimmerContainer(width: 100, height: 44, borderRadius: BorderRadius.all(Radius.circular(16))),
+                    )),
+                  ),
                   error: (e, _) => Text('Error: $e'),
                 ),
               ),

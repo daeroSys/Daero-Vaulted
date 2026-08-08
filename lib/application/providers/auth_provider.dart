@@ -26,7 +26,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 final authServiceProvider = Provider<AuthenticationService>((ref) {
   final authRepo = ref.watch(authRepositoryProvider);
   final userRepo = ref.watch(userRepositoryProvider);
-  return AuthenticationService(authRepo, userRepo);
+  final db = ref.watch(appDatabaseProvider);
+  final syncService = ref.watch(syncServiceProvider);
+  return AuthenticationService(authRepo, userRepo, db, syncService);
 });
 
 final authStateProvider = StreamProvider<AuthState>((ref) {

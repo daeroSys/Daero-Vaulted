@@ -5,19 +5,27 @@ import '../../domain/repositories/sync_repository.dart';
 import '../../domain/entities/enums.dart';
 import 'connectivity_service.dart';
 
+import '../../database/app_database.dart';
+import 'package:drift/drift.dart';
+
 class SyncService {
   final SyncRepository _syncRepository;
   final ConnectivityService _connectivityService;
   final SupabaseClient _supabaseClient;
+  final AppDatabase _db;
   final Logger _logger = Logger('SyncService');
 
   bool _isSyncing = false;
 
   SyncService({
-    required this._syncRepository,
-    required this._connectivityService,
-    required this._supabaseClient,
-  }) {
+    required SyncRepository syncRepository,
+    required ConnectivityService connectivityService,
+    required SupabaseClient supabaseClient,
+    required AppDatabase db,
+  })  : _syncRepository = syncRepository,
+        _connectivityService = connectivityService,
+        _supabaseClient = supabaseClient,
+        _db = db {
     _init();
   }
 
@@ -100,6 +108,78 @@ class SyncService {
       _logger.warning('Failed to sync item ${item.id}', e);
       // Mark as retrying or failed based on retry count (simplification: just mark retrying for now, rely on exponential backoff or next trigger)
       await _syncRepository.markMutationStatus(item.id, SyncStatus.retrying);
+    }
+  }
+
+  Future<void> syncDown(String userId) async {
+    final isOnline = await _connectivityService.checkIsOnline();
+    if (!isOnline) {
+      _logger.info('Device is offline, skipping syncDown.');
+      return;
+    }
+
+    try {
+      _logger.info('Starting syncDown for user $userId');
+      
+      // 1. Fetch folders
+      final foldersData = await _supabaseClient.from('folders').select().eq('user_id', userId);
+      await _db.batch((batch) {
+        for (final row in foldersData) {
+          batch.insert(_db.folders, FoldersCompanion.insert(
+            id: row['id'],
+            userId: row['user_id'],
+            name: row['name'],
+            icon: Value(row['icon']),
+            color: Value(row['color']),
+            position: row['position'] ?? 0,
+            createdAt: DateTime.parse(row['created_at']),
+            updatedAt: DateTime.parse(row['updated_at']),
+            deletedAt: Value(row['deleted_at'] != null ? DateTime.parse(row['deleted_at']) : null),
+          ), mode: InsertMode.insertOrReplace);
+        }
+      });
+
+      // 2. Fetch saved_items with joined content
+      final savedItemsData = await _supabaseClient
+          .from('saved_items')
+          .select('*, content(*)')
+          .eq('user_id', userId);
+          
+      await _db.batch((batch) {
+        for (final row in savedItemsData) {
+          // Insert content first
+          final contentRow = row['content'];
+          if (contentRow != null) {
+            batch.insert(_db.content, ContentCompanion.insert(
+              id: contentRow['id'],
+              platform: Platform.values.byName(contentRow['platform']),
+              contentType: ContentType.values.byName(contentRow['content_type']),
+              url: contentRow['url'],
+              canonicalUrl: contentRow['canonical_url'],
+              createdAt: DateTime.parse(contentRow['created_at']),
+              updatedAt: DateTime.parse(contentRow['updated_at']),
+              deletedAt: Value(contentRow['deleted_at'] != null ? DateTime.parse(contentRow['deleted_at']) : null),
+            ), mode: InsertMode.insertOrReplace);
+          }
+          
+          // Insert saved_item
+          batch.insert(_db.savedItems, SavedItemsCompanion.insert(
+            id: row['id'],
+            userId: row['user_id'],
+            folderId: Value(row['folder_id']),
+            contentId: row['content_id'],
+            notes: Value(row['notes']),
+            isFavorite: Value(row['is_favorite'] ?? false),
+            isArchived: Value(row['is_archived'] ?? false),
+            savedAt: DateTime.parse(row['saved_at']),
+            updatedAt: DateTime.parse(row['updated_at']),
+            deletedAt: Value(row['deleted_at'] != null ? DateTime.parse(row['deleted_at']) : null),
+          ), mode: InsertMode.insertOrReplace);
+        }
+      });
+      _logger.info('Successfully completed syncDown for user $userId');
+    } catch (e, stackTrace) {
+      _logger.severe('Failed to syncDown data', e, stackTrace);
     }
   }
 }

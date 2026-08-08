@@ -1,27 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryColor = Color(0xFF6750A4);
   static const Color secondaryColor = Color(0xFF625B71);
   static const Color errorColor = Color(0xFFB3261E);
-
-  static const TextTheme _textTheme = TextTheme(
-    displayLarge: TextStyle(fontSize: 57, fontWeight: FontWeight.w400),
-    displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400),
-    displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-    headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w400),
-    headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
-    titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-    titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-    bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-    bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-    bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-    labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-    labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-    labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-  );
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -34,7 +17,20 @@ class AppTheme {
         secondary: secondaryColor,
         error: errorColor,
       ),
-      textTheme: _textTheme,
+      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white.withValues(alpha: 0.9),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
     );
   }
 
@@ -42,14 +38,29 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF0F1115), // Deep dark background
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
-        primary: primaryColor,
-        secondary: secondaryColor,
-        error: errorColor,
+        primary: const Color(0xFFD0BCFF),
+        secondary: const Color(0xFFCCC2DC),
+        surface: const Color(0xFF1C1B1F),
+        error: const Color(0xFFF2B8B5),
       ),
-      textTheme: _textTheme,
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: const Color(0xFF1C1B1F).withValues(alpha: 0.8),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF2B2930),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
     );
   }
 }

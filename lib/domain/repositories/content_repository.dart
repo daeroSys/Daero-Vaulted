@@ -14,4 +14,5 @@ abstract class ContentRepository {
   Future<void> softDeleteSavedItem(String id);
   
   Stream<List<SavedItemView>> watchItemsInFolder(String folderId);
+  Stream<List<SavedItemView>> watchRecentItems({int limit = 5});
 }

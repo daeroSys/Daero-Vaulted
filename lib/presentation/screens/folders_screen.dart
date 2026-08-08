@@ -8,21 +8,14 @@ import 'package:vaulted/presentation/widgets/folder_form_bottom_sheet.dart';
 import 'package:vaulted/core/services/share_service.dart';
 import 'package:vaulted/presentation/widgets/save_share_bottom_sheet.dart';
 import 'package:vaulted/application/providers/sync_provider.dart';
+import 'package:vaulted/presentation/widgets/shimmer_loading.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class FoldersScreen extends ConsumerWidget {
   const FoldersScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Keep ShareService alive to capture intents
-    ref.watch(shareServiceProvider);
-    
-    ref.listen(shareIntentStreamProvider, (previous, next) {
-      next.whenData((share) {
-        SaveShareBottomSheet.show(context, share);
-      });
-    });
-
     final foldersState = ref.watch(foldersProvider);
 
     return Scaffold(
@@ -154,11 +147,13 @@ class FoldersScreen extends ConsumerWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          context.push('/folders/${folder.id}');
-                        },
+                      child: Semantics(
+                        button: true,
+                        label: 'Folder ${folder.name}',
                         child: GlassContainer(
+                          onTap: () {
+                            context.push('/folders/${folder.id}');
+                          },
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
@@ -183,11 +178,11 @@ class FoldersScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  );
+                  ).animate(key: ValueKey('anim_${folder.id}'), delay: (index * 50).ms).fade().slideY(begin: 0.1, duration: 200.ms);
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const FolderListShimmer(),
             error: (err, stack) => Center(child: Text('Error: $err')),
           ),
         ],

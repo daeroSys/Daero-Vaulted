@@ -41,4 +41,16 @@ class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
     query.orderBy([OrderingTerm.desc(savedItems.savedAt)]);
     return query.watch();
   }
+
+  Stream<List<TypedResult>> watchRecentItemsQuery(int limit) {
+    final query = select(savedItems).join([
+      innerJoin(content, content.id.equalsExp(savedItems.contentId)),
+      leftOuterJoin(contentMetadata, contentMetadata.contentId.equalsExp(content.id)),
+    ])
+    ..where(savedItems.deletedAt.isNull());
+    
+    query.orderBy([OrderingTerm.desc(savedItems.savedAt)]);
+    query.limit(limit);
+    return query.watch();
+  }
 }
