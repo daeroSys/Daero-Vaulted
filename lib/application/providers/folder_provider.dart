@@ -13,22 +13,19 @@ final folderRepositoryProvider = Provider<FolderRepository>((ref) {
   return FolderRepositoryImpl(db.folderDao, syncRepo);
 });
 
-final foldersProvider = AsyncNotifierProvider.autoDispose<FoldersNotifier, List<Folder>>(() {
+final foldersProvider = StreamNotifierProvider.autoDispose<FoldersNotifier, List<Folder>>(() {
   return FoldersNotifier();
 });
 
-class FoldersNotifier extends AutoDisposeAsyncNotifier<List<Folder>> {
+class FoldersNotifier extends AutoDisposeStreamNotifier<List<Folder>> {
   @override
-  Future<List<Folder>> build() async {
-    return _fetchFolders();
-  }
-
-  Future<List<Folder>> _fetchFolders() async {
-    final userId = await ref.read(authRepositoryProvider).getCurrentUserId();
-    if (userId == null) return [];
+  Stream<List<Folder>> build() {
+    final authState = ref.watch(authStateProvider).value;
+    final userId = authState?.session?.user.id;
+    if (userId == null) return Stream.value([]);
     
-    final repo = ref.read(folderRepositoryProvider);
-    return await repo.getActiveFolders(userId);
+    final repo = ref.watch(folderRepositoryProvider);
+    return repo.watchActiveFolders(userId);
   }
 
   Future<void> createFolder(String name, String? icon, String? color) async {
@@ -39,25 +36,21 @@ class FoldersNotifier extends AutoDisposeAsyncNotifier<List<Folder>> {
     final currentFolders = state.value ?? [];
     
     await repo.createFolder(userId, name, icon, color, currentFolders.length);
-    ref.invalidateSelf();
   }
 
   Future<void> updateFolder(String id, {String? name, String? icon, String? color}) async {
     final repo = ref.read(folderRepositoryProvider);
     await repo.updateFolder(id, name: name, icon: icon, color: color);
-    ref.invalidateSelf();
   }
 
   Future<void> deleteFolder(String id) async {
     final repo = ref.read(folderRepositoryProvider);
     await repo.softDeleteFolder(id);
-    ref.invalidateSelf();
   }
 
   Future<void> restoreFolder(String id) async {
     final repo = ref.read(folderRepositoryProvider);
     await repo.restoreFolder(id);
-    ref.invalidateSelf();
   }
 
   Future<void> reorderFolders(int oldIndex, int newIndex) async {
@@ -73,8 +66,8 @@ class FoldersNotifier extends AutoDisposeAsyncNotifier<List<Folder>> {
     final item = items.removeAt(oldIndex);
     items.insert(newIndex, item);
     
-    // Optimistic UI update
-    state = AsyncValue.data(items);
+    // Optimistic UI is no longer needed because the Drift Stream will automatically
+    // emit the newly ordered list instantly.
     
     // Background DB save
     final orderedIds = items.map((f) => f.id).toList();

@@ -31,6 +31,23 @@ class FolderRepositoryImpl implements FolderRepository {
   }
 
   @override
+  Stream<List<entity.Folder>> watchActiveFolders(String userId) {
+    return _folderDao.watchActiveFolders(userId).map((driftFolders) {
+      return driftFolders.map((f) => entity.Folder(
+        id: f.id,
+        userId: f.userId,
+        name: f.name,
+        icon: f.icon,
+        color: f.color,
+        position: f.position,
+        createdAt: f.createdAt,
+        updatedAt: f.updatedAt,
+        deletedAt: f.deletedAt,
+      )).toList();
+    });
+  }
+
+  @override
   Future<void> createFolder(String userId, String name, String? icon, String? color, int position) async {
     final id = UuidUtils.generateV7();
     final now = DateTime.now().toUtc();

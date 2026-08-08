@@ -16,9 +16,14 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
   SearchDao(super.db);
 
   Future<List<String>> searchContentIds(String query) async {
+    final cleanQuery = query.replaceAll(RegExp(r'[^\w\s]'), '');
+    if (cleanQuery.trim().isEmpty) return [];
+    
+    final formattedQuery = cleanQuery.trim().split(RegExp(r'\s+')).map((w) => '"$w"*').join(' AND ');
+
     final rows = await customSelect(
       'SELECT contentId FROM fts_search WHERE fts_search MATCH ? ORDER BY rank',
-      variables: [Variable.withString(query)],
+      variables: [Variable.withString(formattedQuery)],
     ).get();
     return rows.map((r) => r.read<String>('contentId')).toList();
   }
@@ -106,7 +111,7 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
       final rowid = result.read<int>('rowid');
       await customStatement(
         'DELETE FROM fts_search WHERE rowid = ?',
-        [Variable.withInt(rowid)],
+        [rowid],
       );
     }
   }

@@ -139,10 +139,10 @@ class SyncService {
         }
       });
 
-      // 2. Fetch saved_items with joined content
+      // 2. Fetch saved_items with joined content and metadata
       final savedItemsData = await _supabaseClient
           .from('saved_items')
-          .select('*, content(*)')
+          .select('*, content(*, content_metadata(*))')
           .eq('user_id', userId);
           
       await _db.batch((batch) {
@@ -160,6 +160,25 @@ class SyncService {
               updatedAt: DateTime.parse(contentRow['updated_at']),
               deletedAt: Value(contentRow['deleted_at'] != null ? DateTime.parse(contentRow['deleted_at']) : null),
             ), mode: InsertMode.insertOrReplace);
+            
+            // Insert content_metadata if it exists
+            final metadataList = contentRow['content_metadata'] as List<dynamic>?;
+            if (metadataList != null && metadataList.isNotEmpty) {
+              final metadataRow = metadataList.first;
+              batch.insert(_db.contentMetadata, ContentMetadataCompanion.insert(
+                id: metadataRow['id'],
+                contentId: metadataRow['content_id'],
+                title: Value(metadataRow['title']),
+                creator: Value(metadataRow['creator']),
+                description: Value(metadataRow['description']),
+                thumbnail: Value(metadataRow['thumbnail']),
+                duration: Value(metadataRow['duration']),
+                language: Value(metadataRow['language']),
+                metadataStatus: MetadataStatus.values.byName(metadataRow['metadata_status']),
+                lastFetched: Value(metadataRow['last_fetched'] != null ? DateTime.parse(metadataRow['last_fetched']) : null),
+                updatedAt: metadataRow['updated_at'] != null ? DateTime.parse(metadataRow['updated_at']) : DateTime.now(),
+              ), mode: InsertMode.insertOrReplace);
+            }
           }
           
           // Insert saved_item
@@ -177,6 +196,24 @@ class SyncService {
           ), mode: InsertMode.insertOrReplace);
         }
       });
+      
+      // Update Search Index for all synced items
+      for (final row in savedItemsData) {
+        final contentRow = row['content'];
+        if (contentRow != null) {
+          final metadataList = contentRow['content_metadata'] as List<dynamic>?;
+          final metadataRow = (metadataList != null && metadataList.isNotEmpty) ? metadataList.first : null;
+          
+          await _db.searchDao.updateSearchIndex(
+            contentId: contentRow['id'],
+            title: metadataRow?['title'] as String?,
+            creator: metadataRow?['creator'] as String?,
+            description: metadataRow?['description'] as String?,
+            notes: row['notes'] as String?,
+          );
+        }
+      }
+      
       _logger.info('Successfully completed syncDown for user $userId');
     } catch (e, stackTrace) {
       _logger.severe('Failed to syncDown data', e, stackTrace);

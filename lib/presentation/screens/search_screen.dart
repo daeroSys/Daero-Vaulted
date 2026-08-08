@@ -142,7 +142,7 @@ class _SearchResults extends ConsumerWidget {
   }
 }
 
-class _SavedItemCard extends StatelessWidget {
+class _SavedItemCard extends ConsumerWidget {
   final SavedItemView item;
 
   const _SavedItemCard({required this.item});
@@ -155,7 +155,9 @@ class _SavedItemCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final query = ref.watch(searchQueryProvider);
+    
     return GestureDetector(
       onTap: _launchUrl,
       child: GlassContainer(
@@ -203,12 +205,20 @@ class _SavedItemCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Expanded(
-                      child: Text(
-                        item.title ?? item.content.url,
+                      child: HighlightedText(
+                        text: item.title ?? item.content.url,
+                        query: query,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           height: 1.2,
+                        ),
+                        highlightStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          height: 1.2,
+                          color: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                         ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
@@ -256,5 +266,61 @@ class _SavedItemCard extends StatelessWidget {
         iconData = Icons.language;
     }
     return Icon(iconData, size: 14, color: Colors.grey);
+  }
+}
+
+class HighlightedText extends StatelessWidget {
+  final String text;
+  final String query;
+  final TextStyle? style;
+  final TextStyle? highlightStyle;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  const HighlightedText({
+    super.key,
+    required this.text,
+    required this.query,
+    this.style,
+    this.highlightStyle,
+    this.maxLines,
+    this.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanQuery = query.replaceAll(RegExp(r'[^\w\s]'), '');
+    final words = cleanQuery.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    
+    if (words.isEmpty || text.trim().isEmpty) {
+      return Text(text, style: style, maxLines: maxLines, overflow: overflow);
+    }
+
+    final pattern = words.map(RegExp.escape).join('|');
+    final regex = RegExp(pattern, caseSensitive: false);
+    
+    final List<TextSpan> spans = [];
+    int start = 0;
+    
+    for (final match in regex.allMatches(text)) {
+      if (match.start > start) {
+        spans.add(TextSpan(text: text.substring(start, match.start), style: style));
+      }
+      spans.add(TextSpan(
+        text: match.group(0),
+        style: highlightStyle ?? style?.copyWith(fontWeight: FontWeight.w900, color: Colors.blue),
+      ));
+      start = match.end;
+    }
+    
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start), style: style));
+    }
+
+    return RichText(
+      text: TextSpan(children: spans, style: style),
+      maxLines: maxLines,
+      overflow: overflow ?? TextOverflow.clip,
+    );
   }
 }

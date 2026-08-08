@@ -15,6 +15,13 @@ class FolderDao extends DatabaseAccessor<AppDatabase> with _$FolderDaoMixin {
     ).get();
   }
   
+  Stream<List<Folder>> watchActiveFolders(String userId) {
+    return (select(folders)
+      ..where((t) => t.userId.equals(userId) & t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm(expression: t.position)])
+    ).watch();
+  }
+  
   Future<Folder?> getFolderById(String id) {
     return (select(folders)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
