@@ -5,9 +5,12 @@ import 'package:vaulted/domain/entities/folder.dart';
 import 'package:vaulted/domain/repositories/folder_repository.dart';
 import 'auth_provider.dart';
 
+import 'sync_provider.dart';
+
 final folderRepositoryProvider = Provider<FolderRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return FolderRepositoryImpl(db.folderDao);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return FolderRepositoryImpl(db.folderDao, syncRepo);
 });
 
 final foldersProvider = AsyncNotifierProvider<FoldersNotifier, List<Folder>>(() {

@@ -13,6 +13,33 @@ import 'core/utils/app_lifecycle_observer.dart';
 import 'theme/app_theme.dart';
 import 'router/app_router.dart';
 import 'core/utils/secure_local_storage.dart';
+import 'package:workmanager/workmanager.dart';
+import 'application/providers/sync_provider.dart';
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    try {
+      await dotenv.load(fileName: '.env');
+      await Supabase.initialize(
+        url: Env.supabaseUrl,
+        // ignore: deprecated_member_use
+        anonKey: Env.supabaseAnonKey,
+        authOptions: FlutterAuthClientOptions(
+          localStorage: SecureLocalStorage(),
+        ),
+      );
+      
+      final container = ProviderContainer();
+      final syncService = container.read(syncServiceProvider);
+      await syncService.processQueue();
+    } catch (e, stackTrace) {
+      AppLogger.e('Background sync task failed: $e\n$stackTrace');
+      return Future.value(false);
+    }
+    return Future.value(true);
+  });
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +101,23 @@ void main() async {
     }
   } catch (e) {
     AppLogger.e('Failed to initialize RevenueCat: $e');
+  }
+
+  // Initialize Workmanager
+  try {
+    await Workmanager().initialize(
+      callbackDispatcher,
+    );
+    await Workmanager().registerPeriodicTask(
+      'offline-sync-task',
+      'processSyncQueue',
+      frequency: const Duration(minutes: 15),
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+      ),
+    );
+  } catch (e) {
+    AppLogger.e('Failed to initialize Workmanager: $e');
   }
 
   runApp(

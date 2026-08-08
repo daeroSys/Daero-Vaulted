@@ -5,9 +5,12 @@ import 'package:vaulted/domain/entities/content.dart';
 import 'package:vaulted/domain/repositories/content_repository.dart';
 import 'package:vaulted/core/services/duplicate_detection_service.dart';
 
+import 'sync_provider.dart';
+
 final contentRepositoryProvider = Provider<ContentRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return ContentRepositoryImpl(db.contentDao);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return ContentRepositoryImpl(db.contentDao, syncRepo);
 });
 
 final duplicateDetectionServiceProvider = Provider<DuplicateDetectionService>((ref) {

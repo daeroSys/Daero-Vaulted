@@ -9,13 +9,15 @@ import 'package:vaulted/core/services/metadata/metadata_service.dart';
 import 'package:vaulted/core/services/metadata/thumbnail_cache_service.dart';
 import 'package:vaulted/core/services/metadata/providers/youtube_provider.dart';
 import 'package:vaulted/core/services/metadata/providers/tiktok_provider.dart';
-import 'package:vaulted/core/services/metadata/providers/instagram_provider.dart';
 import 'package:vaulted/core/services/metadata/providers/generic_url_provider.dart';
 import 'package:vaulted/core/services/metadata/providers/microlink_provider.dart';
 
+import 'package:vaulted/application/providers/sync_provider.dart';
+
 final metadataRepositoryProvider = Provider<MetadataRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return MetadataRepositoryImpl(db.metadataDao);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return MetadataRepositoryImpl(db.metadataDao, syncRepo);
 });
 
 final thumbnailCacheServiceProvider = Provider<ThumbnailCacheService>((ref) {

@@ -5,10 +5,14 @@ import '../../database/daos/content_dao.dart';
 import '../../database/app_database.dart';
 import '../../core/utils/uuid_utils.dart';
 
+import '../../domain/repositories/sync_repository.dart';
+import '../../domain/entities/enums.dart';
+
 class ContentRepositoryImpl implements ContentRepository {
   final ContentDao _contentDao;
+  final SyncRepository _syncRepository;
 
-  ContentRepositoryImpl(this._contentDao);
+  ContentRepositoryImpl(this._contentDao, this._syncRepository);
 
   @override
   Future<entity.Content?> findContentByCanonicalUrl(String canonicalUrl) async {
@@ -45,6 +49,23 @@ class ContentRepositoryImpl implements ContentRepository {
         createdAt: Value(content.createdAt),
         updatedAt: Value(content.updatedAt),
       ));
+
+      await _syncRepository.queueMutation(
+        'content',
+        content.id,
+        SyncOperation.create,
+        SyncPriority.high,
+        {
+          'id': content.id,
+          'platform': content.platform.name, // assuming platform and type need string conversion matching DB schema
+          'content_type': content.type.name,
+          'url': content.url,
+          'canonical_url': content.canonicalUrl,
+          'created_at': content.createdAt.toIso8601String(),
+          'updated_at': content.updatedAt.toIso8601String(),
+          'deleted_at': null,
+        },
+      );
     }
     
     // 2. Create SavedItem
@@ -60,6 +81,25 @@ class ContentRepositoryImpl implements ContentRepository {
       savedAt: Value(now),
       updatedAt: Value(now),
     ));
+
+    await _syncRepository.queueMutation(
+      'saved_items',
+      savedItemId,
+      SyncOperation.create,
+      SyncPriority.high,
+      {
+        'id': savedItemId,
+        'user_id': userId,
+        'folder_id': folderId,
+        'content_id': content.id,
+        'notes': notes ?? '',
+        'is_favorite': false,
+        'is_archived': false,
+        'saved_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+        'deleted_at': null,
+      },
+    );
     
     return entity.SavedItem(
       id: savedItemId,
@@ -75,13 +115,34 @@ class ContentRepositoryImpl implements ContentRepository {
   Future<void> updateSavedItem(String id, {String? folderId, String? notes, bool? isFavorite, bool? isArchived}) async {
     final existing = await _contentDao.getSavedItem(id);
     if (existing != null) {
-      await _contentDao.updateSavedItem(existing.copyWith(
+      final now = DateTime.now().toUtc();
+      final updated = existing.copyWith(
         folderId: Value(folderId ?? existing.folderId),
         notes: Value(notes ?? existing.notes),
         isFavorite: isFavorite ?? existing.isFavorite,
         isArchived: isArchived ?? existing.isArchived,
-        updatedAt: DateTime.now().toUtc(),
-      ).toCompanion(true));
+        updatedAt: now,
+      );
+      await _contentDao.updateSavedItem(updated.toCompanion(true));
+
+      await _syncRepository.queueMutation(
+        'saved_items',
+        id,
+        SyncOperation.update,
+        SyncPriority.normal,
+        {
+          'id': updated.id,
+          'user_id': updated.userId,
+          'folder_id': updated.folderId,
+          'content_id': updated.contentId,
+          'notes': updated.notes,
+          'is_favorite': updated.isFavorite,
+          'is_archived': updated.isArchived,
+          'saved_at': updated.savedAt.toIso8601String(),
+          'updated_at': updated.updatedAt.toIso8601String(),
+          'deleted_at': updated.deletedAt?.toIso8601String(),
+        },
+      );
     }
   }
 
@@ -89,10 +150,31 @@ class ContentRepositoryImpl implements ContentRepository {
   Future<void> softDeleteSavedItem(String id) async {
     final existing = await _contentDao.getSavedItem(id);
     if (existing != null) {
-      await _contentDao.updateSavedItem(existing.copyWith(
-        deletedAt: Value(DateTime.now().toUtc()),
-        updatedAt: DateTime.now().toUtc(),
-      ).toCompanion(true));
+      final now = DateTime.now().toUtc();
+      final updated = existing.copyWith(
+        deletedAt: Value(now),
+        updatedAt: now,
+      );
+      await _contentDao.updateSavedItem(updated.toCompanion(true));
+
+      await _syncRepository.queueMutation(
+        'saved_items',
+        id,
+        SyncOperation.update, // Or soft delete
+        SyncPriority.normal,
+        {
+          'id': updated.id,
+          'user_id': updated.userId,
+          'folder_id': updated.folderId,
+          'content_id': updated.contentId,
+          'notes': updated.notes,
+          'is_favorite': updated.isFavorite,
+          'is_archived': updated.isArchived,
+          'saved_at': updated.savedAt.toIso8601String(),
+          'updated_at': updated.updatedAt.toIso8601String(),
+          'deleted_at': updated.deletedAt?.toIso8601String(),
+        },
+      );
     }
   }
   

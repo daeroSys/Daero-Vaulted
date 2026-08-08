@@ -49,3 +49,22 @@ This document tracks all deviations, deferrals, additions, and significant techn
 **Context:** Standard HTML scraping (Decision 003) failed for Facebook and Instagram links due to aggressive scraper blocking (403 Forbidden) and login walls. 
 **Decision:** We integrated the Microlink API specifically for Facebook and Instagram to securely bypass login walls and extract rich OpenGraph metadata (titles, creators, and thumbnails). We also implemented a graceful fallback to prevent scraping failures from crashing the app.
 **Consequences:** Improved reliability for social media links. Other platforms (TikTok, YouTube) still use direct oEmbed endpoints.
+
+---
+
+## Decision 007: Deferral of Supabase Row Level Security (RLS) Configuration (Phase 7)
+**Date:** August 2026
+**Context:** During the implementation of Phase 7 (Offline Synchronization), the Supabase SQL editor prompts to enable Row Level Security (RLS) when creating the cloud tables. 
+**Decision:** We deferred enabling RLS ("Run without RLS") to immediately allow the background `SyncService` to test data flow and synchronization logic without being blocked by 403 Forbidden errors.
+**Next Steps:** RLS must be formally enabled and proper policy rules (matching `userId` to the authenticated token) must be written and applied before the app is deployed to production (Phase 13).
+
+---
+
+## Decision 008: Database Triggers for Users Table and Shared Content Architecture (Phase 7)
+**Date:** August 2026
+**Context:** When a user signs up via Supabase Auth, they must exist in the public `users` table to satisfy foreign key constraints (e.g. `folders.user_id`). Relying on the Flutter client to sync the user profile immediately after signup creates a race condition and is unreliable. Additionally, Android Share Sheets sometimes filter apps if their MIME types are too generic.
+**Decision:** 
+1. We bypassed client-side syncing for new user signups by using a Postgres Database Trigger (`on_auth_user_created`) to instantly copy data from `auth.users` to `public.users`. 
+2. We broadened Android intent filters to explicitly include both `text/plain` and `*/*` to ensure compatibility with strict apps like YouTube and TikTok.
+3. We maintained our shared `content` table architecture (no `user_id` on the `content` table) relying entirely on `saved_items` as the joining table.
+**Consequences:** The `users` table is always perfectly synchronized with Supabase Auth. Content de-duplication works perfectly. The app reliably receives share intents across all major apps.

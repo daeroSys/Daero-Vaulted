@@ -7,6 +7,7 @@ import 'package:vaulted/presentation/widgets/glass_container.dart';
 import 'package:vaulted/presentation/widgets/folder_form_bottom_sheet.dart';
 import 'package:vaulted/core/services/share_service.dart';
 import 'package:vaulted/presentation/widgets/save_share_bottom_sheet.dart';
+import 'package:vaulted/application/providers/sync_provider.dart';
 
 class FoldersScreen extends ConsumerWidget {
   const FoldersScreen({super.key});
@@ -30,6 +31,35 @@ class FoldersScreen extends ConsumerWidget {
         title: const Text('Folders', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final syncState = ref.watch(syncNotifierProvider);
+              return syncState.maybeWhen(
+                loading: () => const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+                orElse: () => IconButton(
+                  icon: const Icon(Icons.sync_rounded),
+                  tooltip: 'Manual Sync',
+                  onPressed: () {
+                    ref.read(syncNotifierProvider.notifier).forceSync();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sync started...'), duration: Duration(seconds: 2)),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),

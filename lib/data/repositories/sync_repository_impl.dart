@@ -31,6 +31,11 @@ class SyncRepositoryImpl implements SyncRepository {
   }
 
   @override
+  Stream<List<dynamic>> watchPendingMutations() {
+    return _syncDao.watchPendingSyncItems();
+  }
+
+  @override
   Future<void> markMutationStatus(String id, SyncStatus status) async {
     final results = await _syncDao.select(_syncDao.syncQueue).get();
     final existing = results.where((item) => item.id == id).firstOrNull;

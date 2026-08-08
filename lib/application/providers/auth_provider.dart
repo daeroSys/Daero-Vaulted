@@ -6,6 +6,7 @@ import 'package:vaulted/data/repositories/user_repository_impl.dart';
 import 'package:vaulted/domain/repositories/user_repository.dart';
 import 'package:vaulted/services/authentication_service.dart';
 import 'package:vaulted/core/providers.dart';
+import 'package:vaulted/application/providers/sync_provider.dart';
 
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
@@ -18,7 +19,8 @@ final authRepositoryProvider = Provider<AuthenticationRepository>((ref) {
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   final db = ref.watch(appDatabaseProvider);
-  return UserRepositoryImpl(db.userDao);
+  final syncRepo = ref.watch(syncRepositoryProvider);
+  return UserRepositoryImpl(db.userDao, syncRepo);
 });
 
 final authServiceProvider = Provider<AuthenticationService>((ref) {

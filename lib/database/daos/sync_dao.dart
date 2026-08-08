@@ -19,6 +19,16 @@ class SyncDao extends DatabaseAccessor<AppDatabase> with _$SyncDaoMixin {
     ).get();
   }
   
+  Stream<List<SyncQueueData>> watchPendingSyncItems() {
+    return (select(syncQueue)
+      ..where((t) => t.syncStatus.isIn([SyncStatus.pending.name, SyncStatus.retrying.name]))
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.priority),
+        (t) => OrderingTerm(expression: t.createdAt)
+      ])
+    ).watch();
+  }
+  
   Future<int> insertSyncItem(SyncQueueCompanion item) => into(syncQueue).insert(item);
   
   Future<bool> updateSyncItem(SyncQueueCompanion item) => update(syncQueue).replace(item);
