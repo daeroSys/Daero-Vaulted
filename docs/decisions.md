@@ -76,3 +76,13 @@ This document tracks all deviations, deferrals, additions, and significant techn
 **Context:** Creating a true floating "Share Extension" overlay that works smoothly over external apps like YouTube requires complex native iOS Swift and Android Kotlin UI, breaking cross-platform uniformity.
 **Decision:** We implemented a "Get In, Get Out" UX pattern using pure Flutter. When shared to, the app opens directly to the `SaveShareBottomSheet`. Upon saving, the app invokes a custom Kotlin `MethodChannel` (`moveTaskToBack(true)`) to instantly background the app, returning the user exactly to their previous context. 
 **Consequences:** Users get the seamless speed and feel of a native Share Extension without leaving the Flutter codebase. Backgrounding (instead of killing) the app allows asynchronous `MetadataService` tasks to safely complete before the OS suspends the isolate.
+
+---
+
+## Decision 010: Notification Payloads and Database Syncing (Phase 9)
+**Date:** August 2026
+**Context:** Tying Firebase Cloud Messaging (FCM) push notifications directly to specific user accounts requires storing device tokens securely on our backend. Additionally, when a user taps a notification, the app needs to route them to a specific context (like a folder).
+**Decision:** 
+1. We implemented an automatic sync of the FCM token to a new Supabase table (`user_fcm_tokens`) during the `NotificationService` initialization, ensuring the token is only synced when `Supabase.auth.currentUser` is active.
+2. We used `go_router` in conjunction with a `StreamController` inside the `NotificationService` to instantly route users (e.g., `/folders/:id`) when tapping a deep-linked notification.
+**Consequences:** This allows the backend to send targeted notifications to specific devices and creates a seamless deep-linking experience for users opening the app via notifications.

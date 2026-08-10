@@ -6,7 +6,7 @@
   Vaulted is an offline-first, cross-platform personal knowledge library designed to rescue the content you learn from social media and the web. It centralizes, organizes, and enriches your saved content, ensuring that what you find today is never lost tomorrow.
 
   ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
-  ![Current Phase](https://img.shields.io/badge/Phase-9%3A%20Notifications-blue)
+  ![Current Phase](https://img.shields.io/badge/Phase-10%3A%20Premium-blue)
   ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
   ![Android](https://img.shields.io/badge/Android-Supported-green?logo=android)
   ![iOS](https://img.shields.io/badge/iOS-Supported-black?logo=apple)
@@ -167,8 +167,8 @@ Vaulted will rely heavily on organic growth and community evangelism.
 | **Phase 6** | ✅ COMPLETE | Offline & Remote Full-Text Search |
 | **Phase 7** | ✅ COMPLETE | Offline Sync Queue & Conflict Resolution |
 | **Phase 8** | ✅ COMPLETE | UI Polish, Animations, Material 3 |
-| **Phase 9** | 🏃 IN PROGRESS | Push & Local Notifications |
-| **Phase 10** | ⏳ PLANNED | Premium Entitlements & Paywalls (RevenueCat) |
+| **Phase 9** | ✅ COMPLETE | Push & Local Notifications |
+| **Phase 10** | 🏃 IN PROGRESS | Premium Entitlements & Paywalls (RevenueCat) |
 | **Phase 11** | ⏳ PLANNED | User Settings, Data Export, Privacy |
 | **Phase 12** | ⏳ PLANNED | Comprehensive Testing, Profiling, Optimization |
 | **Phase 13** | ⏳ PLANNED | App Store & Google Play Deployment |

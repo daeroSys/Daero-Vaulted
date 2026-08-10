@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
 import 'package:vaulted/presentation/widgets/folder_form_bottom_sheet.dart';
-import 'package:vaulted/core/services/share_service.dart';
-import 'package:vaulted/presentation/widgets/save_share_bottom_sheet.dart';
 import 'package:vaulted/application/providers/sync_provider.dart';
 import 'package:vaulted/presentation/widgets/shimmer_loading.dart';
 import 'package:flutter_animate/flutter_animate.dart';

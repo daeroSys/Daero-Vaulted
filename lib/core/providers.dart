@@ -4,6 +4,7 @@ import '../network/dio_client.dart';
 import '../services/secure_storage_service.dart';
 import '../services/connectivity_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'services/notification_service.dart';
 
 final supabaseProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
@@ -23,4 +24,8 @@ final secureStorageProvider = Provider<SecureStorageService>((ref) {
 
 final connectivityServiceProvider = Provider<ConnectivityService>((ref) {
   return ConnectivityService();
+});
+
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  return NotificationService(supabaseClient: ref.read(supabaseProvider));
 });

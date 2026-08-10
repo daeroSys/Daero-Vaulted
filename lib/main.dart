@@ -15,6 +15,17 @@ import 'router/app_router.dart';
 import 'core/utils/secure_local_storage.dart';
 import 'package:workmanager/workmanager.dart';
 import 'application/providers/sync_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'core/providers.dart';
+import 'firebase_options.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  debugPrint('Handling a background message: ${message.messageId}');
+}
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -54,9 +65,12 @@ void main() async {
   // Initialize Logger
   AppLogger.init();
 
-  // Initialize Firebase (Assuming default options are generated later)
+  // Initialize Firebase
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     
     // Pass all uncaught "fatal" errors from the framework to Crashlytics
     FlutterError.onError = (errorDetails) {
@@ -141,6 +155,17 @@ class _VaultedAppState extends ConsumerState<VaultedApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(_observer);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notificationService = ref.read(notificationServiceProvider);
+      notificationService.init();
+      notificationService.onNotificationPayload.listen((payload) {
+        if (mounted) {
+          final router = ref.read(appRouterProvider);
+          router.go(payload);
+        }
+      });
+    });
   }
 
   @override

@@ -3,6 +3,22 @@ import 'package:drift/native.dart';
 import 'package:vaulted/database/app_database.dart';
 import 'package:vaulted/database/daos/user_dao.dart';
 import 'package:vaulted/data/repositories/user_repository_impl.dart';
+import 'package:vaulted/domain/repositories/sync_repository.dart';
+import 'package:vaulted/domain/entities/enums.dart';
+
+class FakeSyncRepository implements SyncRepository {
+  @override
+  Future<void> queueMutation(String entityType, String entityId, SyncOperation operation, SyncPriority priority, Map<String, dynamic> payload) async {}
+
+  @override
+  Future<List<dynamic>> getPendingMutations() async => [];
+
+  @override
+  Stream<List<dynamic>> watchPendingMutations() => const Stream.empty();
+
+  @override
+  Future<void> markMutationStatus(String id, SyncStatus status) async {}
+}
 
 void main() {
   late AppDatabase database;
@@ -12,7 +28,7 @@ void main() {
   setUp(() {
     database = AppDatabase.forTesting(NativeDatabase.memory());
     userDao = database.userDao;
-    userRepository = UserRepositoryImpl(userDao);
+    userRepository = UserRepositoryImpl(userDao, FakeSyncRepository());
   });
 
   tearDown(() async {
