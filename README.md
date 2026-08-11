@@ -6,7 +6,7 @@
   Vaulted is an offline-first, cross-platform personal knowledge library designed to rescue the content you learn from social media and the web. It centralizes, organizes, and enriches your saved content, ensuring that what you find today is never lost tomorrow.
 
   ![Development Status](https://img.shields.io/badge/Status-In%20Development-orange)
-  ![Current Phase](https://img.shields.io/badge/Phase-11%3A%20Settings-blue)
+  ![Current Phase](https://img.shields.io/badge/Phase-12%3A%20Testing-blue)
   ![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
   ![Android](https://img.shields.io/badge/Android-Supported-green?logo=android)
   ![iOS](https://img.shields.io/badge/iOS-Supported-black?logo=apple)
@@ -169,8 +169,8 @@ Vaulted will rely heavily on organic growth and community evangelism.
 | **Phase 8** | ✅ COMPLETE | UI Polish, Animations, Material 3 |
 | **Phase 9** | ✅ COMPLETE | Push & Local Notifications |
 | **Phase 10** | ✅ COMPLETE | Premium Entitlements & Paywalls (RevenueCat) |
-| **Phase 11** | 🏃 IN PROGRESS | User Settings, Data Export, Privacy |
-| **Phase 12** | ⏳ PLANNED | Comprehensive Testing, Profiling, Optimization |
+| **Phase 11** | ✅ COMPLETE | User Settings, Data Export, Privacy |
+| **Phase 12** | 🏃 IN PROGRESS | Comprehensive Testing, Profiling, Optimization |
 | **Phase 13** | ⏳ PLANNED | App Store & Google Play Deployment |
 
 *Refer to [`docs/roadmap.md`](docs/roadmap.md) for the detailed implementation sequence.*
