@@ -27,5 +27,5 @@ final connectivityServiceProvider = Provider<ConnectivityService>((ref) {
 });
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService(supabaseClient: ref.read(supabaseProvider));
+  return NotificationService(ref.read(supabaseProvider));
 });

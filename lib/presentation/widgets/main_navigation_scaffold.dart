@@ -27,6 +27,8 @@ class MainNavigationScaffold extends ConsumerWidget {
       currentIndex = 2;
     } else if (location.startsWith('/profile')) {
       currentIndex = 3;
+    } else if (location.startsWith('/settings')) {
+      currentIndex = 3;
     }
 
     return Scaffold(

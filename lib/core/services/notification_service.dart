@@ -14,8 +14,7 @@ class NotificationService {
   final _payloadStreamController = StreamController<String>.broadcast();
   Stream<String> get onNotificationPayload => _payloadStreamController.stream;
 
-  NotificationService({required SupabaseClient supabaseClient})
-    : _supabaseClient = supabaseClient;
+  NotificationService(this._supabaseClient);
 
   Future<void> init() async {
     // Request permission

@@ -164,6 +164,7 @@ Dedicated services under `core/services` enforce single-responsibility principle
 *   **ConnectivityService**: Monitors network state.
 *   **NotificationService**: Handles alerting and background notifications.
 *   **RevenueCatService**: Manages subscriptions.
+*   **DataManagementService**: Manages local data export and soft-delete account deletion.
 *   **ThumbnailCacheService**: Caches thumbnails locally, expires outdated ones, refreshes automatically, and supports offline viewing. Cached thumbnails are temporary; original images are never permanently duplicated unless explicitly allowed.
 *   **DuplicateDetectionService**: Normalizes URLs, generates canonical representations, and searches for existing Content to reuse, preventing any duplicate Content creation.
 

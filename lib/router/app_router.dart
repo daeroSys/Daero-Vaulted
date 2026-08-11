@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/splash/splash_screen.dart';
+import '../presentation/screens/settings_screen.dart';
+import '../presentation/screens/profile_screen.dart';
 import '../widgets/placeholder_screen.dart';
 import '../presentation/screens/login_screen.dart';
 import '../presentation/screens/home_screen.dart';
@@ -90,13 +92,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) =>
-                const PlaceholderScreen(title: 'Profile'),
+            builder: (context, state) => const ProfileScreen(),
           ),
           GoRoute(
             path: '/settings',
-            builder: (context, state) =>
-                const PlaceholderScreen(title: 'Settings'),
+            builder: (context, state) => const SettingsScreen(),
           ),
           GoRoute(
             path: '/premium',

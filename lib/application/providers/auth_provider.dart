@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vaulted/database/app_database.dart' as db;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaulted/data/repositories/supabase_auth_repository.dart';
 import 'package:vaulted/domain/repositories/authentication_repository.dart';
@@ -42,4 +43,12 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
     data: (state) => state.session != null,
     orElse: () => false,
   );
+});
+
+final currentUserProvider = FutureProvider<db.User?>((ref) async {
+  final authRepo = ref.watch(authRepositoryProvider);
+  final userId = await authRepo.getCurrentUserId();
+  if (userId == null) return null;
+  final database = ref.watch(appDatabaseProvider);
+  return database.userDao.getUserById(userId);
 });

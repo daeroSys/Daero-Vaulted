@@ -23,10 +23,10 @@ final syncRepositoryProvider = Provider<SyncRepositoryImpl>((ref) {
 
 final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService(
-    syncRepository: ref.watch(syncRepositoryProvider),
-    connectivityService: ref.watch(connectivityServiceProvider),
-    supabaseClient: Supabase.instance.client,
-    db: ref.watch(appDatabaseProvider),
+    ref.watch(syncRepositoryProvider),
+    ref.watch(connectivityServiceProvider),
+    Supabase.instance.client,
+    ref.watch(appDatabaseProvider),
   );
 });
 

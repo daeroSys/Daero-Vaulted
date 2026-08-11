@@ -246,8 +246,9 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
                   height: 50,
                   child: foldersState.when(
                     data: (folders) {
-                      if (folders.isEmpty)
+                      if (folders.isEmpty) {
                         return const Text('No folders available.');
+                      }
                       return ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: folders.length,

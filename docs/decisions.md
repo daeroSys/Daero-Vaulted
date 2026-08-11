@@ -95,3 +95,14 @@ This document tracks all deviations, deferrals, additions, and significant techn
 **Decision:** We deferred the actual configuration of RevenueCat and the invocation of the native payment sheets. Instead, we implemented a "mock purchase" function (`mockPurchasePremium`) in the `RevenueCatService` that forces the application into the Premium state.
 **Consequences:** This allows development to continue smoothly into the remaining phases without being blocked by administrative store setups. 
 **Next Steps:** RevenueCat API keys must be injected into `revenuecat_service.dart`, store products must be created, and the mock logic must be replaced with the actual `Purchases.purchasePackage()` call prior to deploying the app to the app stores (Phase 13).
+
+---
+
+## Decision 012: Soft Delete for Account Deletion (Phase 11)
+**Date:** August 2026
+**Context:** When users request account deletion, entirely purging their record from Supabase immediately could break relational constraints or remove analytical history abruptly. Furthermore, Vaulted operates entirely offline-first, meaning local data must also be securely wiped.
+**Decision:** We implemented a "Soft Delete" approach for the backend. When a user deletes their account:
+1. The local SQLite database is completely wiped to ensure privacy.
+2. An RPC or update call marks their Supabase `users` record with a `deleted_at` timestamp.
+3. The user is signed out and returned to the login screen.
+**Consequences:** This satisfies data deletion compliance while maintaining database integrity. User data is protected on the local device, but the backend can use a cron job to permanently purge soft-deleted records after a grace period.

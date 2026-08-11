@@ -17,15 +17,12 @@ class SyncService {
 
   bool _isSyncing = false;
 
-  SyncService({
-    required SyncRepository syncRepository,
-    required ConnectivityService connectivityService,
-    required SupabaseClient supabaseClient,
-    required AppDatabase db,
-  }) : _syncRepository = syncRepository,
-       _connectivityService = connectivityService,
-       _supabaseClient = supabaseClient,
-       _db = db {
+  SyncService(
+    this._syncRepository,
+    this._connectivityService,
+    this._supabaseClient,
+    this._db,
+  ) {
     _init();
   }
 

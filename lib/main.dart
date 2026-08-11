@@ -18,6 +18,8 @@ import 'application/providers/sync_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'core/providers.dart';
 import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'application/providers/settings_provider.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -130,7 +132,23 @@ void main() async {
     AppLogger.e('Failed to initialize Workmanager: $e');
   }
 
-  runApp(const ProviderScope(child: VaultedApp()));
+  // Initialize SharedPreferences
+  SharedPreferences? prefs;
+  try {
+    prefs = await SharedPreferences.getInstance();
+  } catch (e) {
+    AppLogger.e('Failed to initialize SharedPreferences: $e');
+  }
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        if (prefs != null)
+          sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const VaultedApp(),
+    ),
+  );
 }
 
 class VaultedApp extends ConsumerStatefulWidget {
@@ -169,12 +187,13 @@ class _VaultedAppState extends ConsumerState<VaultedApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: 'Vaulted',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
