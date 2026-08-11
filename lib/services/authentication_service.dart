@@ -12,7 +12,12 @@ class AuthenticationService {
   final AppDatabase _db;
   final SyncService _syncService;
 
-  AuthenticationService(this._authRepository, this._userRepository, this._db, this._syncService);
+  AuthenticationService(
+    this._authRepository,
+    this._userRepository,
+    this._db,
+    this._syncService,
+  );
 
   /// Synchronizes the currently logged-in Supabase user with the local SQLite Users table.
   Future<void> _syncProfileToLocalDb() async {
@@ -23,14 +28,9 @@ class AuthenticationService {
         final displayName = user.userMetadata?['full_name'] as String?;
         final photoUrl = user.userMetadata?['avatar_url'] as String?;
 
-        await _userRepository.createUser(
-          user.id,
-          email,
-          displayName,
-          photoUrl,
-        );
+        await _userRepository.createUser(user.id, email, displayName, photoUrl);
         AppLogger.i('Profile synced successfully for user: ${user.id}');
-        
+
         // Sync down all folders and content for this user
         await _syncService.syncDown(user.id);
       } catch (e) {

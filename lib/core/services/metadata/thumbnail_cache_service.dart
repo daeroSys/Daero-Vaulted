@@ -17,7 +17,7 @@ class ThumbnailCacheService {
     try {
       final cacheDir = await getApplicationDocumentsDirectory();
       final thumbnailsDir = Directory(p.join(cacheDir.path, 'thumbnails'));
-      
+
       if (!await thumbnailsDir.exists()) {
         await thumbnailsDir.create(recursive: true);
       }
@@ -31,7 +31,12 @@ class ThumbnailCacheService {
         final lastSegment = uri.pathSegments.last;
         if (lastSegment.contains('.')) {
           final extractedExt = p.extension(lastSegment);
-          if (['.jpg', '.jpeg', '.png', '.webp'].contains(extractedExt.toLowerCase())) {
+          if ([
+            '.jpg',
+            '.jpeg',
+            '.png',
+            '.webp',
+          ].contains(extractedExt.toLowerCase())) {
             ext = extractedExt;
           }
         }
@@ -51,11 +56,7 @@ class ThumbnailCacheService {
       await _dio.download(
         url,
         filePath,
-        options: Options(
-          headers: {
-            'User-Agent': 'VaultedApp/1.0',
-          },
-        ),
+        options: Options(headers: {'User-Agent': 'VaultedApp/1.0'}),
       );
       debugPrint('Thumbnail download complete.');
 

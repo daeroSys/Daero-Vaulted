@@ -19,13 +19,15 @@ class TagRepositoryImpl implements TagRepository {
     if (existing == null) {
       final id = UuidUtils.generateV7();
       final now = DateTime.now().toUtc();
-      
-      await _tagDao.insertTag(TagsCompanion(
-        id: Value(id),
-        name: Value(name),
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      ));
+
+      await _tagDao.insertTag(
+        TagsCompanion(
+          id: Value(id),
+          name: Value(name),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ),
+      );
 
       await _syncRepository.queueMutation(
         'tags',
@@ -49,20 +51,16 @@ class TagRepositoryImpl implements TagRepository {
 
   @override
   Future<void> assignTagToContent(String contentId, String tagId) async {
-    await _tagDao.assignTagToContent(ContentTagsCompanion(
-      contentId: Value(contentId),
-      tagId: Value(tagId),
-    ));
+    await _tagDao.assignTagToContent(
+      ContentTagsCompanion(contentId: Value(contentId), tagId: Value(tagId)),
+    );
 
     await _syncRepository.queueMutation(
       'content_tags',
       '${contentId}_$tagId',
       SyncOperation.create,
       SyncPriority.normal,
-      {
-        'content_id': contentId,
-        'tag_id': tagId,
-      },
+      {'content_id': contentId, 'tag_id': tagId},
     );
   }
 
@@ -75,10 +73,7 @@ class TagRepositoryImpl implements TagRepository {
       '${contentId}_$tagId',
       SyncOperation.delete,
       SyncPriority.normal,
-      {
-        'content_id': contentId,
-        'tag_id': tagId,
-      },
+      {'content_id': contentId, 'tag_id': tagId},
     );
   }
 }

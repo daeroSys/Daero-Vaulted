@@ -19,7 +19,10 @@ class FoldersScreen extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Folders', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Folders',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -43,7 +46,10 @@ class FoldersScreen extends ConsumerWidget {
                   onPressed: () {
                     ref.read(syncNotifierProvider.notifier).forceSync();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sync started...'), duration: Duration(seconds: 2)),
+                      const SnackBar(
+                        content: Text('Sync started...'),
+                        duration: Duration(seconds: 2),
+                      ),
                     );
                   },
                 ),
@@ -54,7 +60,11 @@ class FoldersScreen extends ConsumerWidget {
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.5)),
+            child: Container(
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.5),
+            ),
           ),
         ),
       ),
@@ -96,11 +106,9 @@ class FoldersScreen extends ConsumerWidget {
           foldersState.when(
             data: (folders) {
               if (folders.isEmpty) {
-                return const Center(
-                  child: Text('No folders yet. Create one!'),
-                );
+                return const Center(child: Text('No folders yet. Create one!'));
               }
-              
+
               return ReorderableListView.builder(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 60,
@@ -110,73 +118,99 @@ class FoldersScreen extends ConsumerWidget {
                 ),
                 itemCount: folders.length,
                 onReorderItem: (oldIndex, newIndex) {
-                  ref.read(foldersProvider.notifier).reorderFolders(oldIndex, newIndex);
+                  ref
+                      .read(foldersProvider.notifier)
+                      .reorderFolders(oldIndex, newIndex);
                 },
                 itemBuilder: (context, index) {
                   final folder = folders[index];
                   return Dismissible(
-                    key: ValueKey(folder.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(Icons.delete_rounded, color: Colors.white),
-                    ),
-                    onDismissed: (direction) {
-                      ref.read(foldersProvider.notifier).deleteFolder(folder.id);
-                      ScaffoldMessenger.of(context).clearSnackBars();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${folder.name} deleted'),
-                          behavior: SnackBarBehavior.floating,
-                          action: SnackBarAction(
-                            label: 'UNDO',
-                            onPressed: () {
-                              ref.read(foldersProvider.notifier).restoreFolder(folder.id);
-                            },
+                        key: ValueKey(folder.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.delete_rounded,
+                            color: Colors.white,
                           ),
                         ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Semantics(
-                        button: true,
-                        label: 'Folder ${folder.name}',
-                        child: GlassContainer(
-                          onTap: () {
-                            context.push('/folders/${folder.id}');
-                          },
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: folder.displayColor.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(folder.displayIcon, color: folder.displayColor),
+                        onDismissed: (direction) {
+                          ref
+                              .read(foldersProvider.notifier)
+                              .deleteFolder(folder.id);
+                          ScaffoldMessenger.of(context).clearSnackBars();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('${folder.name} deleted'),
+                              behavior: SnackBarBehavior.floating,
+                              action: SnackBarAction(
+                                label: 'UNDO',
+                                onPressed: () {
+                                  ref
+                                      .read(foldersProvider.notifier)
+                                      .restoreFolder(folder.id);
+                                },
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  folder.name,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                                ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Semantics(
+                            button: true,
+                            label: 'Folder ${folder.name}',
+                            child: GlassContainer(
+                              onTap: () {
+                                context.push('/folders/${folder.id}');
+                              },
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: folder.displayColor.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      folder.displayIcon,
+                                      color: folder.displayColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      folder.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.drag_indicator_rounded,
+                                    color: Colors.grey,
+                                  ),
+                                ],
                               ),
-                              const Icon(Icons.drag_indicator_rounded, color: Colors.grey),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ).animate(key: ValueKey('anim_${folder.id}'), delay: (index * 50).ms).fade().slideY(begin: 0.1, duration: 200.ms);
+                      )
+                      .animate(
+                        key: ValueKey('anim_${folder.id}'),
+                        delay: (index * 50).ms,
+                      )
+                      .fade()
+                      .slideY(begin: 0.1, duration: 200.ms);
                 },
               );
             },

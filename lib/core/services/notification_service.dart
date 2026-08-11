@@ -6,14 +6,15 @@ import '../utils/logger.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final SupabaseClient _supabaseClient;
-  
+
   // Stream controller for deep linking payloads
   final _payloadStreamController = StreamController<String>.broadcast();
   Stream<String> get onNotificationPayload => _payloadStreamController.stream;
 
-  NotificationService({required SupabaseClient supabaseClient}) 
+  NotificationService({required SupabaseClient supabaseClient})
     : _supabaseClient = supabaseClient;
 
   Future<void> init() async {
@@ -28,8 +29,11 @@ class NotificationService {
     // Initialize local notifications
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings();
-    const initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
-    
+    const initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
+
     await _localNotificationsPlugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: (response) {
@@ -43,12 +47,15 @@ class NotificationService {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'high_importance_channel', // id
       'High Importance Notifications', // title
-      description: 'This channel is used for important notifications.', // description
+      description:
+          'This channel is used for important notifications.', // description
       importance: Importance.max,
     );
 
     await _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
 
     // Sync FCM Token
@@ -56,7 +63,7 @@ class NotificationService {
 
     // Update token if it changes
     _firebaseMessaging.onTokenRefresh.listen((token) {
-       _syncFcmTokenWith(token);
+      _syncFcmTokenWith(token);
     });
 
     // Foreground messages
@@ -70,11 +77,11 @@ class NotificationService {
       AppLogger.i('Message opened app: ${message.messageId}');
       _handleDeepLink(message.data);
     });
-    
+
     // Handle tapping on notification when app is terminated
     final initialMessage = await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
-      // Need a slight delay to allow router to initialize in some cases, 
+      // Need a slight delay to allow router to initialize in some cases,
       // but usually the listener will catch it when set up early.
       Future.delayed(const Duration(milliseconds: 500), () {
         _handleDeepLink(initialMessage.data);
@@ -106,7 +113,6 @@ class NotificationService {
         'user_id': user.id,
         'token': token,
       }, onConflict: 'token');
-      
     } catch (e) {
       AppLogger.e('Failed to sync FCM token: $e');
     }
@@ -133,7 +139,8 @@ class NotificationService {
           android: AndroidNotificationDetails(
             'high_importance_channel',
             'High Importance Notifications',
-            channelDescription: 'This channel is used for important notifications.',
+            channelDescription:
+                'This channel is used for important notifications.',
             importance: Importance.max,
             priority: Priority.high,
           ),
@@ -145,15 +152,20 @@ class NotificationService {
   }
 
   // Method for Sync/Reminder notifications directly from the app
-  Future<void> showLocalAlert({required int id, required String title, required String body, String? payload}) async {
+  Future<void> showLocalAlert({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
     await _localNotificationsPlugin.show(
       id: id,
       title: title,
       body: body,
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
-          'local_alerts_channel', 
-          'Local Alerts', 
+          'local_alerts_channel',
+          'Local Alerts',
           channelDescription: 'Channel for local reminders and sync alerts.',
           importance: Importance.defaultImportance,
         ),

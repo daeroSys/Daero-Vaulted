@@ -40,7 +40,9 @@ class YouTubeParser implements ShareParserInterface {
     } else if (uri.host.contains('youtube.com')) {
       if (uri.pathSegments.contains('shorts')) {
         final shortIndex = uri.pathSegments.indexOf('shorts');
-        final videoId = (uri.pathSegments.length > shortIndex + 1) ? uri.pathSegments[shortIndex + 1] : '';
+        final videoId = (uri.pathSegments.length > shortIndex + 1)
+            ? uri.pathSegments[shortIndex + 1]
+            : '';
         canonicalUrl = 'https://www.youtube.com/watch?v=$videoId';
       } else {
         final videoId = uri.queryParameters['v'] ?? '';
@@ -93,9 +95,11 @@ class ShareParserOrchestrator {
 
   ParsedShare processText(String text) {
     // Extract first URL from text
-    final urlRegex = RegExp(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)');
+    final urlRegex = RegExp(
+      r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)',
+    );
     final match = urlRegex.firstMatch(text);
-    
+
     final url = match != null ? match.group(0)! : text;
 
     for (final parser in _parsers) {
@@ -103,7 +107,7 @@ class ShareParserOrchestrator {
         return parser.parse(url);
       }
     }
-    
+
     // Fallback
     return _parsers.last.parse(url);
   }

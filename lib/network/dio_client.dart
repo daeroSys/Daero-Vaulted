@@ -12,7 +12,7 @@ class DioClient {
     );
 
     dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
-    
+
     // Retry Interceptor Placeholder
     // Authentication Interceptor Placeholder
   }

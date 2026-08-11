@@ -11,7 +11,7 @@ final supabaseProvider = Provider<SupabaseClient>((ref) {
 });
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase(); 
+  return AppDatabase();
 });
 
 final dioClientProvider = Provider<DioClient>((ref) {

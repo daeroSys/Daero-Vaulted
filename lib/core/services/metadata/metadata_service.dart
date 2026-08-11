@@ -19,14 +19,18 @@ class MetadataService {
     required ThumbnailCacheService thumbnailCacheService,
     required Map<Platform, MetadataProvider> providers,
     required MetadataProvider genericProvider,
-  })  : _metadataRepository = metadataRepository,
-        _searchRepository = searchRepository,
-        _thumbnailCacheService = thumbnailCacheService,
-        _providers = providers,
-        _genericProvider = genericProvider;
+  }) : _metadataRepository = metadataRepository,
+       _searchRepository = searchRepository,
+       _thumbnailCacheService = thumbnailCacheService,
+       _providers = providers,
+       _genericProvider = genericProvider;
 
   /// Fetches metadata in the background and updates the repository.
-  Future<void> fetchMetadata(String contentId, String url, Platform platform) async {
+  Future<void> fetchMetadata(
+    String contentId,
+    String url,
+    Platform platform,
+  ) async {
     // Initial status update
     await _metadataRepository.updateMetadata(
       contentId,
@@ -38,8 +42,11 @@ class MetadataService {
       final extracted = await provider.getMetadata(url);
 
       String? localThumbnailPath;
-      if (extracted.thumbnailUrl != null && extracted.thumbnailUrl!.isNotEmpty) {
-        localThumbnailPath = await _thumbnailCacheService.cacheThumbnail(extracted.thumbnailUrl!);
+      if (extracted.thumbnailUrl != null &&
+          extracted.thumbnailUrl!.isNotEmpty) {
+        localThumbnailPath = await _thumbnailCacheService.cacheThumbnail(
+          extracted.thumbnailUrl!,
+        );
       }
 
       await _metadataRepository.updateMetadata(
@@ -51,13 +58,13 @@ class MetadataService {
         duration: extracted.duration,
         status: MetadataStatus.ready,
       );
-      
+
       // Index for FTS5 Search
       await _searchRepository.indexContent(
-        contentId, 
-        extracted.title, 
-        extracted.description ?? '', 
-        extracted.creator ?? '', 
+        contentId,
+        extracted.title,
+        extracted.description ?? '',
+        extracted.creator ?? '',
         '', // Notes are added by the user elsewhere, not from metadata
         [], // Tags are added elsewhere
       );

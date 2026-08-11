@@ -31,18 +31,22 @@ class GlassContainer extends StatefulWidget {
   State<GlassContainer> createState() => _GlassContainerState();
 }
 
-class _GlassContainerState extends State<GlassContainer> with SingleTickerProviderStateMixin {
+class _GlassContainerState extends State<GlassContainer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -59,7 +63,7 @@ class _GlassContainerState extends State<GlassContainer> with SingleTickerProvid
     if (widget.onTap != null) _controller.reverse();
     widget.onTap?.call();
   }
-  
+
   void _handleTapCancel() {
     if (widget.onTap != null) _controller.reverse();
   }
@@ -68,7 +72,8 @@ class _GlassContainerState extends State<GlassContainer> with SingleTickerProvid
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final glassColor = isDarkMode ? Colors.white : Colors.black;
-    final effectiveBorderRadius = widget.borderRadius ?? BorderRadius.circular(16);
+    final effectiveBorderRadius =
+        widget.borderRadius ?? BorderRadius.circular(16);
 
     Widget container = Container(
       margin: widget.margin,
@@ -83,7 +88,8 @@ class _GlassContainerState extends State<GlassContainer> with SingleTickerProvid
             decoration: BoxDecoration(
               color: glassColor.withValues(alpha: widget.opacity),
               borderRadius: effectiveBorderRadius,
-              border: widget.border ??
+              border:
+                  widget.border ??
                   Border.all(
                     color: glassColor.withValues(alpha: widget.opacity * 1.5),
                     width: 1.0,
@@ -104,10 +110,6 @@ class _GlassContainerState extends State<GlassContainer> with SingleTickerProvid
       );
     }
 
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: container,
-    );
+    return ScaleTransition(scale: _scaleAnimation, child: container);
   }
 }
-

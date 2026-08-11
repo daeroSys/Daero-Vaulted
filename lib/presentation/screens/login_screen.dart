@@ -10,12 +10,13 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isSignUp = false;
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
-  
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -66,10 +67,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
 
   Future<void> _submitEmailAuth() async {
     if (_isLoading) return;
-    
+
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    
+
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -89,7 +90,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Account created! Please check your email to verify.'),
+              content: Text(
+                'Account created! Please check your email to verify.',
+              ),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
             ),
@@ -102,7 +105,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to ${_isSignUp ? 'sign up' : 'sign in'}: ${e.toString()}'),
+            content: Text(
+              'Failed to ${_isSignUp ? 'sign up' : 'sign in'}: ${e.toString()}',
+            ),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
           ),
@@ -124,13 +129,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF334155)],
+                colors: [
+                  Color(0xFF0F172A),
+                  Color(0xFF1E293B),
+                  Color(0xFF334155),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
           ),
-          
+
           // Decorative blur blobs
           Positioned(
             top: -100,
@@ -156,7 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               ),
             ),
           ),
-          
+
           // Full screen glass blur
           Positioned.fill(
             child: BackdropFilter(
@@ -164,13 +173,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
               child: Container(color: Colors.transparent),
             ),
           ),
-          
+
           // Main Content
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32.0,
+                  vertical: 16.0,
+                ),
                 child: FadeTransition(
                   opacity: _fadeAnimation,
                   child: Column(
@@ -182,12 +194,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
-                            )
+                            ),
                           ],
                         ),
                         child: const Icon(
@@ -197,7 +211,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Title
                       Text(
                         _isSignUp ? 'Create Account' : 'Welcome to Vaulted',
@@ -209,10 +223,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         ),
                       ),
                       const SizedBox(height: 8),
-                      
+
                       // Subtitle
                       Text(
-                        _isSignUp ? 'Start organizing your knowledge' : 'Your Universal Personal Knowledge Library',
+                        _isSignUp
+                            ? 'Start organizing your knowledge'
+                            : 'Your Universal Personal Knowledge Library',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
@@ -220,7 +236,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         ),
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Glassmorphism Card for Form
                       ClipRRect(
                         borderRadius: BorderRadius.circular(24),
@@ -232,7 +248,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
                             ),
                             child: Column(
                               children: [
@@ -251,7 +269,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 ),
                                 const SizedBox(height: 24),
                                 _buildLoginButton(
-                                  icon: _isSignUp ? Icons.person_add_alt_1 : Icons.login,
+                                  icon: _isSignUp
+                                      ? Icons.person_add_alt_1
+                                      : Icons.login,
                                   label: _isSignUp ? 'Sign Up' : 'Sign In',
                                   onPressed: _submitEmailAuth,
                                   isPrimary: true,
@@ -259,22 +279,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 const SizedBox(height: 24),
                                 Row(
                                   children: [
-                                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                      child: Text(
-                                        'OR',
-                                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                                    Expanded(
+                                      child: Divider(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
                                       ),
                                     ),
-                                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2))),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                      ),
+                                      child: Text(
+                                        'OR',
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Divider(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 24),
                                 _buildLoginButton(
                                   icon: Icons.g_mobiledata_rounded,
                                   label: 'Continue with Google',
-                                  onPressed: _isLoading ? null : _signInWithGoogle,
+                                  onPressed: _isLoading
+                                      ? null
+                                      : _signInWithGoogle,
                                   isPrimary: false,
                                 ),
                               ],
@@ -282,7 +322,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
                       TextButton(
                         onPressed: () {
@@ -291,7 +331,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                           });
                         },
                         child: Text(
-                          _isSignUp ? 'Already have an account? Sign In' : 'Don\'t have an account? Sign Up',
+                          _isSignUp
+                              ? 'Already have an account? Sign In'
+                              : 'Don\'t have an account? Sign Up',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -350,7 +392,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         color: isPrimary ? Colors.white : Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isPrimary ? Colors.transparent : Colors.white.withValues(alpha: 0.2),
+          color: isPrimary
+              ? Colors.transparent
+              : Colors.white.withValues(alpha: 0.2),
         ),
         boxShadow: isPrimary
             ? [
@@ -358,7 +402,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                   color: Colors.white.withValues(alpha: 0.2),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
-                )
+                ),
               ]
             : [],
       ),

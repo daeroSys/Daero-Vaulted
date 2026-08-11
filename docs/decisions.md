@@ -86,3 +86,12 @@ This document tracks all deviations, deferrals, additions, and significant techn
 1. We implemented an automatic sync of the FCM token to a new Supabase table (`user_fcm_tokens`) during the `NotificationService` initialization, ensuring the token is only synced when `Supabase.auth.currentUser` is active.
 2. We used `go_router` in conjunction with a `StreamController` inside the `NotificationService` to instantly route users (e.g., `/folders/:id`) when tapping a deep-linked notification.
 **Consequences:** This allows the backend to send targeted notifications to specific devices and creates a seamless deep-linking experience for users opening the app via notifications.
+
+---
+
+## Decision 011: Deferral of RevenueCat API Configuration (Phase 10)
+**Date:** August 2026
+**Context:** During the implementation of the Premium paywalls and quotas, we needed a way to test the UI and global state changes without relying on a fully configured RevenueCat environment (which requires generating API keys and setting up subscription products in Apple App Store Connect and Google Play Console).
+**Decision:** We deferred the actual configuration of RevenueCat and the invocation of the native payment sheets. Instead, we implemented a "mock purchase" function (`mockPurchasePremium`) in the `RevenueCatService` that forces the application into the Premium state.
+**Consequences:** This allows development to continue smoothly into the remaining phases without being blocked by administrative store setups. 
+**Next Steps:** RevenueCat API keys must be injected into `revenuecat_service.dart`, store products must be created, and the mock logic must be replaced with the actual `Purchases.purchasePackage()` call prior to deploying the app to the app stores (Phase 13).

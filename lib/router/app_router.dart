@@ -40,7 +40,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final supabase = ref.read(supabaseClientProvider);
       final session = supabase.auth.currentSession;
       final isAuthenticated = session != null;
-      
+
       final isLoggingIn = state.matchedLocation == '/authentication';
       final isSplash = state.matchedLocation == '/splash';
 
@@ -90,19 +90,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => const PlaceholderScreen(title: 'Profile'),
+            builder: (context, state) =>
+                const PlaceholderScreen(title: 'Profile'),
           ),
           GoRoute(
             path: '/settings',
-            builder: (context, state) => const PlaceholderScreen(title: 'Settings'),
+            builder: (context, state) =>
+                const PlaceholderScreen(title: 'Settings'),
           ),
           GoRoute(
             path: '/premium',
-            builder: (context, state) => const PlaceholderScreen(title: 'Premium'),
+            builder: (context, state) =>
+                const PlaceholderScreen(title: 'Premium'),
           ),
           GoRoute(
             path: '/content',
-            builder: (context, state) => const PlaceholderScreen(title: 'Content'),
+            builder: (context, state) =>
+                const PlaceholderScreen(title: 'Content'),
           ),
         ],
       ),

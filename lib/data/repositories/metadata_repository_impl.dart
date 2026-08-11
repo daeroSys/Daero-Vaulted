@@ -25,24 +25,26 @@ class MetadataRepositoryImpl implements MetadataRepository {
     required MetadataStatus status,
   }) async {
     final existing = await _metadataDao.getMetadataByContentId(contentId);
-    
+
     if (existing == null) {
       final newId = UuidUtils.generateV7();
-      
-      await _metadataDao.insertMetadata(ContentMetadataCompanion(
-        id: Value(newId),
-        contentId: Value(contentId),
-        title: Value(title),
-        creator: Value(creator),
-        description: Value(description),
-        thumbnail: Value(thumbnail),
-        duration: Value(duration),
-        language: Value(language),
-        metadataStatus: Value(status),
-        lastFetched: Value(DateTime.now().toUtc()),
-        updatedAt: Value(DateTime.now().toUtc()),
-      ));
-      
+
+      await _metadataDao.insertMetadata(
+        ContentMetadataCompanion(
+          id: Value(newId),
+          contentId: Value(contentId),
+          title: Value(title),
+          creator: Value(creator),
+          description: Value(description),
+          thumbnail: Value(thumbnail),
+          duration: Value(duration),
+          language: Value(language),
+          metadataStatus: Value(status),
+          lastFetched: Value(DateTime.now().toUtc()),
+          updatedAt: Value(DateTime.now().toUtc()),
+        ),
+      );
+
       await _syncRepository.queueMutation(
         'content_metadata',
         newId,
@@ -63,18 +65,22 @@ class MetadataRepositoryImpl implements MetadataRepository {
         },
       );
     } else {
-      await _metadataDao.updateMetadata(existing.copyWith(
-        title: Value(title ?? existing.title),
-        creator: Value(creator ?? existing.creator),
-        description: Value(description ?? existing.description),
-        thumbnail: Value(thumbnail ?? existing.thumbnail),
-        duration: Value(duration ?? existing.duration),
-        language: Value(language ?? existing.language),
-        metadataStatus: status,
-        lastFetched: Value(DateTime.now().toUtc()),
-        updatedAt: DateTime.now().toUtc(),
-      ).toCompanion(true));
-      
+      await _metadataDao.updateMetadata(
+        existing
+            .copyWith(
+              title: Value(title ?? existing.title),
+              creator: Value(creator ?? existing.creator),
+              description: Value(description ?? existing.description),
+              thumbnail: Value(thumbnail ?? existing.thumbnail),
+              duration: Value(duration ?? existing.duration),
+              language: Value(language ?? existing.language),
+              metadataStatus: status,
+              lastFetched: Value(DateTime.now().toUtc()),
+              updatedAt: DateTime.now().toUtc(),
+            )
+            .toCompanion(true),
+      );
+
       await _syncRepository.queueMutation(
         'content_metadata',
         existing.id,

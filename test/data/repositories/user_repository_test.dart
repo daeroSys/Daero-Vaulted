@@ -8,7 +8,13 @@ import 'package:vaulted/domain/entities/enums.dart';
 
 class FakeSyncRepository implements SyncRepository {
   @override
-  Future<void> queueMutation(String entityType, String entityId, SyncOperation operation, SyncPriority priority, Map<String, dynamic> payload) async {}
+  Future<void> queueMutation(
+    String entityType,
+    String entityId,
+    SyncOperation operation,
+    SyncPriority priority,
+    Map<String, dynamic> payload,
+  ) async {}
 
   @override
   Future<List<dynamic>> getPendingMutations() async => [];
@@ -57,8 +63,11 @@ void main() {
       null,
     );
 
-    await userRepository.updateUserProfile('test-id-2', displayName: 'Updated Name');
-    
+    await userRepository.updateUserProfile(
+      'test-id-2',
+      displayName: 'Updated Name',
+    );
+
     final updatedUser = await userDao.getUserById('test-id-2');
     expect(updatedUser!.displayName, 'Updated Name');
     expect(updatedUser.email, 'test2@example.com'); // should not change

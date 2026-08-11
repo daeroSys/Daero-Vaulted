@@ -18,8 +18,12 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
   Future<List<String>> searchContentIds(String query) async {
     final cleanQuery = query.replaceAll(RegExp(r'[^\w\s]'), '');
     if (cleanQuery.trim().isEmpty) return [];
-    
-    final formattedQuery = cleanQuery.trim().split(RegExp(r'\s+')).map((w) => '"$w"*').join(' AND ');
+
+    final formattedQuery = cleanQuery
+        .trim()
+        .split(RegExp(r'\s+'))
+        .map((w) => '"$w"*')
+        .join(' AND ');
 
     final rows = await customSelect(
       'SELECT contentId FROM fts_search WHERE fts_search MATCH ? ORDER BY rank',
@@ -28,27 +32,38 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
     return rows.map((r) => r.read<String>('contentId')).toList();
   }
 
-  Selectable<TypedResult> searchSavedItemsQuery(List<String> matchContentIds, String userId) {
+  Selectable<TypedResult> searchSavedItemsQuery(
+    List<String> matchContentIds,
+    String userId,
+  ) {
     return select(savedItems).join([
       innerJoin(content, content.id.equalsExp(savedItems.contentId)),
       leftOuterJoin(
-          contentMetadata, contentMetadata.contentId.equalsExp(content.id)),
+        contentMetadata,
+        contentMetadata.contentId.equalsExp(content.id),
+      ),
     ])..where(
-        savedItems.contentId.isIn(matchContentIds) & 
-        savedItems.userId.equals(userId) & 
-        savedItems.deletedAt.isNull()
-      );
+      savedItems.contentId.isIn(matchContentIds) &
+          savedItems.userId.equals(userId) &
+          savedItems.deletedAt.isNull(),
+    );
   }
 
   Future<List<String>> getRecentSearches(String userId) {
     final q = select(recentSearches)
       ..where((t) => t.userId.equals(userId))
-      ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+      ])
       ..limit(10);
     return q.map((r) => r.query).get();
   }
 
-  Future<void> addRecentSearch(String userId, String searchQuery, String id) async {
+  Future<void> addRecentSearch(
+    String userId,
+    String searchQuery,
+    String id,
+  ) async {
     await into(recentSearches).insert(
       RecentSearche(
         id: id,
@@ -59,7 +74,7 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
       mode: InsertMode.insertOrReplace,
     );
   }
-  
+
   Future<void> updateSearchIndex({
     required String contentId,
     String? title,
@@ -78,7 +93,7 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
       tags: tags,
     );
   }
-  
+
   Future<int> insertIntoSearchIndex({
     required String contentId,
     String? title,
@@ -99,7 +114,7 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
       ],
     );
   }
-  
+
   Future<void> deleteFromSearchIndex(String contentId) async {
     // In FTS5, you can only delete by rowid.
     final result = await customSelect(
@@ -109,10 +124,7 @@ class SearchDao extends DatabaseAccessor<AppDatabase> with _$SearchDaoMixin {
 
     if (result != null) {
       final rowid = result.read<int>('rowid');
-      await customStatement(
-        'DELETE FROM fts_search WHERE rowid = ?',
-        [rowid],
-      );
+      await customStatement('DELETE FROM fts_search WHERE rowid = ?', [rowid]);
     }
   }
 }

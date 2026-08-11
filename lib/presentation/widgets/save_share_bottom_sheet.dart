@@ -6,19 +6,29 @@ import 'package:vaulted/application/providers/content_provider.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/core/services/share_parser.dart';
 import 'package:vaulted/application/providers/metadata_providers.dart';
+import 'package:vaulted/application/providers/premium_provider.dart';
 import 'package:vaulted/domain/entities/content.dart';
 import 'package:vaulted/core/utils/uuid_utils.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
 import 'package:vaulted/presentation/widgets/shimmer_loading.dart';
+import 'package:vaulted/presentation/premium/premium_paywall_screen.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class SaveShareBottomSheet extends ConsumerStatefulWidget {
   final ParsedShare share;
   final bool closeAppOnSave;
 
-  const SaveShareBottomSheet({super.key, required this.share, this.closeAppOnSave = false});
+  const SaveShareBottomSheet({
+    super.key,
+    required this.share,
+    this.closeAppOnSave = false,
+  });
 
-  static Future<void> show(BuildContext context, ParsedShare share, {bool closeAppOnSave = false}) {
+  static Future<void> show(
+    BuildContext context,
+    ParsedShare share, {
+    bool closeAppOnSave = false,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -27,13 +37,17 @@ class SaveShareBottomSheet extends ConsumerStatefulWidget {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SaveShareBottomSheet(share: share, closeAppOnSave: closeAppOnSave),
+        child: SaveShareBottomSheet(
+          share: share,
+          closeAppOnSave: closeAppOnSave,
+        ),
       ),
     );
   }
 
   @override
-  ConsumerState<SaveShareBottomSheet> createState() => _SaveShareBottomSheetState();
+  ConsumerState<SaveShareBottomSheet> createState() =>
+      _SaveShareBottomSheetState();
 }
 
 class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
@@ -47,7 +61,7 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
     super.initState();
     _checkDuplicate();
   }
-  
+
   @override
   void dispose() {
     _noteController.dispose();
@@ -56,8 +70,10 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
 
   Future<void> _checkDuplicate() async {
     final duplicateService = ref.read(duplicateDetectionServiceProvider);
-    final existing = await duplicateService.findExistingContent(widget.share.canonicalUrl);
-    
+    final existing = await duplicateService.findExistingContent(
+      widget.share.canonicalUrl,
+    );
+
     if (mounted) {
       setState(() {
         _existingContent = existing;
@@ -69,18 +85,38 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
   Future<void> _save() async {
     final userId = await ref.read(authRepositoryProvider).getCurrentUserId();
     if (userId == null) return;
-    
+
     final contentRepo = ref.read(contentRepositoryProvider);
-    
-    final contentToSave = _existingContent ?? Content(
-      id: UuidUtils.generateV7(),
-      platform: widget.share.platform,
-      type: widget.share.type,
-      url: widget.share.url,
-      canonicalUrl: widget.share.canonicalUrl,
-      createdAt: DateTime.now().toUtc(),
-      updatedAt: DateTime.now().toUtc(),
-    );
+
+    final contentToSave =
+        _existingContent ??
+        Content(
+          id: UuidUtils.generateV7(),
+          platform: widget.share.platform,
+          type: widget.share.type,
+          url: widget.share.url,
+          canonicalUrl: widget.share.canonicalUrl,
+          createdAt: DateTime.now().toUtc(),
+          updatedAt: DateTime.now().toUtc(),
+        );
+
+    final isPremium = ref.read(isPremiumProvider);
+    if (!isPremium) {
+      final itemsCount = await contentRepo.getTotalSavedItemsCount(userId);
+      if (itemsCount >= 500) {
+        if (mounted) {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  const PremiumPaywallScreen(featureName: 'unlimited saves'),
+              fullscreenDialog: true,
+            ),
+          );
+        }
+        return;
+      }
+    }
 
     await contentRepo.saveItem(
       userId: userId,
@@ -88,20 +124,22 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
       folderId: _selectedFolderId,
       notes: _noteController.text.trim(),
     );
-    
+
     // Trigger background metadata fetch
-    ref.read(metadataServiceProvider).fetchMetadata(
-      contentToSave.id,
-      contentToSave.url,
-      contentToSave.platform,
-    );
-    
+    ref
+        .read(metadataServiceProvider)
+        .fetchMetadata(
+          contentToSave.id,
+          contentToSave.url,
+          contentToSave.platform,
+        );
+
     if (mounted) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved to Vaulted!')),
-      );
-      
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Saved to Vaulted!')));
+
       if (widget.closeAppOnSave) {
         // Send the app back to the background so the user is instantly returned to their previous app (e.g., YouTube)
         const platform = MethodChannel('com.example.vaulted/background');
@@ -113,132 +151,186 @@ class _SaveShareBottomSheetState extends ConsumerState<SaveShareBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final foldersState = ref.watch(foldersProvider);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.all(24),
-      child: _isLoading 
-        ? const ShimmerContainer(height: 300, width: double.infinity)
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Image.asset('assets/vaultedlogo.jpg', width: 28, height: 28),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Save to Vaulted',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.share.url,
-                style: const TextStyle(color: Colors.grey),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 16),
-              
-              if (_existingContent != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.orange),
-                      SizedBox(width: 12),
-                      Expanded(child: Text('You have already saved this link before. Saving again will create a new reference.')),
-                    ],
-                  ),
-                ).animate().fade(duration: 300.ms).scale(begin: const Offset(0.95, 0.95)),
-                const SizedBox(height: 16),
-              ],
-              
-              const Text('Add a Note', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              GlassContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextField(
-                  controller: _noteController,
-                  decoration: const InputDecoration(
-                    hintText: 'Why are you saving this?',
-                    border: InputBorder.none,
-                    fillColor: Colors.transparent,
-                  ),
-                  maxLines: 3,
-                  minLines: 1,
+      child: _isLoading
+          ? const ShimmerContainer(height: 300, width: double.infinity)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/vaultedlogo.jpg',
+                      width: 28,
+                      height: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Save to Vaulted',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              
-              const SizedBox(height: 24),
-              const Text('Select Folder', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-              
-              SizedBox(
-                height: 50,
-                child: foldersState.when(
-                  data: (folders) {
-                    if (folders.isEmpty) return const Text('No folders available.');
-                    return ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: folders.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final folder = folders[index];
-                        final isSelected = _selectedFolderId == folder.id;
-                        return GlassContainer(
-                          onTap: () => setState(() => _selectedFolderId = folder.id),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                const SizedBox(height: 8),
+                Text(
+                  widget.share.url,
+                  style: const TextStyle(color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 16),
+
+                if (_existingContent != null) ...[
+                  Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.orange),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.orange),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'You have already saved this link before. Saving again will create a new reference.',
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      .animate()
+                      .fade(duration: 300.ms)
+                      .scale(begin: const Offset(0.95, 0.95)),
+                  const SizedBox(height: 16),
+                ],
+
+                const Text(
+                  'Add a Note',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                GlassContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: TextField(
+                    controller: _noteController,
+                    decoration: const InputDecoration(
+                      hintText: 'Why are you saving this?',
+                      border: InputBorder.none,
+                      fillColor: Colors.transparent,
+                    ),
+                    maxLines: 3,
+                    minLines: 1,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                const Text(
+                  'Select Folder',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  height: 50,
+                  child: foldersState.when(
+                    data: (folders) {
+                      if (folders.isEmpty)
+                        return const Text('No folders available.');
+                      return ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: folders.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final folder = folders[index];
+                          final isSelected = _selectedFolderId == folder.id;
+                          return GlassContainer(
+                            onTap: () =>
+                                setState(() => _selectedFolderId = folder.id),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             opacity: isSelected ? 0.3 : 0.05,
-                            border: isSelected ? Border.all(color: folder.displayColor, width: 2) : null,
+                            border: isSelected
+                                ? Border.all(
+                                    color: folder.displayColor,
+                                    width: 2,
+                                  )
+                                : null,
                             child: Row(
                               children: [
-                                Icon(folder.displayIcon, color: folder.displayColor, size: 20),
+                                Icon(
+                                  folder.displayIcon,
+                                  color: folder.displayColor,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 8),
-                                Text(folder.name, style: TextStyle(
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                )),
+                                Text(
+                                  folder.name,
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
                               ],
                             ),
                           );
-                      },
-                    );
-                  },
-                  loading: () => Row(
-                    children: List.generate(3, (index) => const Padding(
-                      padding: EdgeInsets.only(right: 12.0),
-                      child: ShimmerContainer(width: 100, height: 44, borderRadius: BorderRadius.all(Radius.circular(16))),
-                    )),
+                        },
+                      );
+                    },
+                    loading: () => Row(
+                      children: List.generate(
+                        3,
+                        (index) => const Padding(
+                          padding: EdgeInsets.only(right: 12.0),
+                          child: ShimmerContainer(
+                            width: 100,
+                            height: 44,
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    error: (e, _) => Text('Error: $e'),
                   ),
-                  error: (e, _) => Text('Error: $e'),
                 ),
-              ),
-              
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _save,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _save,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Save to Vault',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  child: const Text('Save to Vault', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+                const SizedBox(height: 16),
+              ],
+            ),
     );
   }
 }

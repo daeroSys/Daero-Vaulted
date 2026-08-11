@@ -16,11 +16,12 @@ class GenericUrlProvider implements MetadataProvider {
         options: Options(
           headers: {
             // Emulate a standard browser to avoid basic blocks
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          }
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
         ),
       );
-      
+
       final document = parse(response.data);
 
       String? title;
@@ -28,18 +29,32 @@ class GenericUrlProvider implements MetadataProvider {
       String? thumbnailUrl;
 
       // Check OpenGraph tags
-      final ogTitle = document.querySelector('meta[property="og:title"]')?.attributes['content'];
-      final ogDesc = document.querySelector('meta[property="og:description"]')?.attributes['content'];
-      final ogImage = document.querySelector('meta[property="og:image"]')?.attributes['content'];
+      final ogTitle = document
+          .querySelector('meta[property="og:title"]')
+          ?.attributes['content'];
+      final ogDesc = document
+          .querySelector('meta[property="og:description"]')
+          ?.attributes['content'];
+      final ogImage = document
+          .querySelector('meta[property="og:image"]')
+          ?.attributes['content'];
 
       // Check Twitter tags
-      final twTitle = document.querySelector('meta[name="twitter:title"]')?.attributes['content'];
-      final twDesc = document.querySelector('meta[name="twitter:description"]')?.attributes['content'];
-      final twImage = document.querySelector('meta[name="twitter:image"]')?.attributes['content'];
+      final twTitle = document
+          .querySelector('meta[name="twitter:title"]')
+          ?.attributes['content'];
+      final twDesc = document
+          .querySelector('meta[name="twitter:description"]')
+          ?.attributes['content'];
+      final twImage = document
+          .querySelector('meta[name="twitter:image"]')
+          ?.attributes['content'];
 
       // Check standard tags
       final stdTitle = document.querySelector('title')?.text;
-      final stdDesc = document.querySelector('meta[name="description"]')?.attributes['content'];
+      final stdDesc = document
+          .querySelector('meta[name="description"]')
+          ?.attributes['content'];
 
       title = ogTitle ?? twTitle ?? stdTitle ?? 'Saved Link';
       description = ogDesc ?? twDesc ?? stdDesc;

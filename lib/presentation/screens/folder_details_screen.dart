@@ -18,7 +18,9 @@ class FolderDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final foldersAsync = ref.watch(foldersProvider);
-    final folder = foldersAsync.value?.where((f) => f.id == folderId).firstOrNull;
+    final folder = foldersAsync.value
+        ?.where((f) => f.id == folderId)
+        .firstOrNull;
 
     final itemsAsync = ref.watch(folderItemsProvider(folderId));
 
@@ -103,7 +105,11 @@ class FolderDetailsScreen extends ConsumerWidget {
             }
 
             return Padding(
-              padding: const EdgeInsets.only(top: 100.0, left: 16, right: 16), // Account for AppBar
+              padding: const EdgeInsets.only(
+                top: 100.0,
+                left: 16,
+                right: 16,
+              ), // Account for AppBar
               child: GridView.builder(
                 padding: const EdgeInsets.only(bottom: 32),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -146,7 +152,9 @@ class _SavedItemCard extends ConsumerWidget {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Remove Video'),
-            content: const Text('Are you sure you want to remove this video from your folder?'),
+            content: const Text(
+              'Are you sure you want to remove this video from your folder?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -154,10 +162,15 @@ class _SavedItemCard extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () {
-                  ref.read(contentRepositoryProvider).softDeleteSavedItem(item.savedItem.id);
+                  ref
+                      .read(contentRepositoryProvider)
+                      .softDeleteSavedItem(item.savedItem.id);
                   Navigator.pop(context);
                 },
-                child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                child: const Text(
+                  'Remove',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
@@ -172,7 +185,9 @@ class _SavedItemCard extends ConsumerWidget {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
                 child: item.thumbnail != null
                     ? Image.file(
                         File(item.thumbnail!),
@@ -233,11 +248,7 @@ class _SavedItemCard extends ConsumerWidget {
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: const Center(
-        child: Icon(
-          Icons.link,
-          size: 48,
-          color: Colors.grey,
-        ),
+        child: Icon(Icons.link, size: 48, color: Colors.grey),
       ),
     );
   }

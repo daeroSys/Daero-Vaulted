@@ -13,8 +13,10 @@ class SearchRepositoryImpl implements SearchRepository {
     final matchContentIds = await _searchDao.searchContentIds(query);
     if (matchContentIds.isEmpty) return [];
 
-    final rows = await _searchDao.searchSavedItemsQuery(matchContentIds, userId).get();
-    
+    final rows = await _searchDao
+        .searchSavedItemsQuery(matchContentIds, userId)
+        .get();
+
     return rows.map((row) {
       final savedItemData = row.readTable(_searchDao.savedItems);
       final contentData = row.readTable(_searchDao.content);
@@ -52,7 +54,14 @@ class SearchRepositoryImpl implements SearchRepository {
   }
 
   @override
-  Future<void> indexContent(String contentId, String title, String description, String creator, String notes, List<String> tags) async {
+  Future<void> indexContent(
+    String contentId,
+    String title,
+    String description,
+    String creator,
+    String notes,
+    List<String> tags,
+  ) async {
     await _searchDao.updateSearchIndex(
       contentId: contentId,
       title: title,

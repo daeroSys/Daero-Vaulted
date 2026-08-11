@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vaulted/application/providers/folder_provider.dart';
 import 'package:vaulted/domain/entities/folder.dart';
 import 'package:vaulted/presentation/widgets/glass_container.dart';
+import 'package:vaulted/core/exceptions/quota_exception.dart';
+import 'package:vaulted/presentation/premium/premium_paywall_screen.dart';
 
 class FolderFormBottomSheet extends ConsumerStatefulWidget {
   final Folder? folder;
@@ -24,7 +26,8 @@ class FolderFormBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<FolderFormBottomSheet> createState() => _FolderFormBottomSheetState();
+  ConsumerState<FolderFormBottomSheet> createState() =>
+      _FolderFormBottomSheetState();
 }
 
 class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
@@ -74,23 +77,49 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
     final notifier = ref.read(foldersProvider.notifier);
-    if (widget.folder == null) {
-      notifier.createFolder(name, _selectedIcon, _selectedColor);
-    } else {
-      notifier.updateFolder(widget.folder!.id, name: name, icon: _selectedIcon, color: _selectedColor);
+    try {
+      if (widget.folder == null) {
+        await notifier.createFolder(name, _selectedIcon, _selectedColor);
+      } else {
+        await notifier.updateFolder(
+          widget.folder!.id,
+          name: name,
+          icon: _selectedIcon,
+          color: _selectedColor,
+        );
+      }
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } on QuotaExceededException catch (_) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) =>
+                const PremiumPaywallScreen(featureName: 'unlimited folders'),
+            fullscreenDialog: true,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
-    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -106,7 +135,7 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          
+
           // Name Input
           GlassContainer(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -121,11 +150,11 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
               onSubmitted: (_) => _save(),
             ),
           ),
-          
+
           const SizedBox(height: 24),
           const Text('Color', style: TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          
+
           // Color Picker
           SizedBox(
             height: 48,
@@ -135,9 +164,11 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final hex = _colors[index];
-                final color = Color(int.parse(hex.replaceAll('#', 'FF'), radix: 16));
+                final color = Color(
+                  int.parse(hex.replaceAll('#', 'FF'), radix: 16),
+                );
                 final isSelected = _selectedColor == hex;
-                
+
                 return GestureDetector(
                   onTap: () => setState(() => _selectedColor = hex),
                   child: Container(
@@ -146,18 +177,23 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
-                      border: isSelected ? Border.all(color: isDarkMode ? Colors.white : Colors.black, width: 3) : null,
+                      border: isSelected
+                          ? Border.all(
+                              color: isDarkMode ? Colors.white : Colors.black,
+                              width: 3,
+                            )
+                          : null,
                     ),
                   ),
                 );
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
           const Text('Icon', style: TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          
+
           // Icon Picker
           SizedBox(
             height: 48,
@@ -168,9 +204,17 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
               itemBuilder: (context, index) {
                 final iconName = _icons[index];
                 final isSelected = _selectedIcon == iconName;
-                final dummyFolder = Folder(id: '', userId: '', name: '', position: 0, createdAt: DateTime.now(), updatedAt: DateTime.now(), icon: iconName);
+                final dummyFolder = Folder(
+                  id: '',
+                  userId: '',
+                  name: '',
+                  position: 0,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                  icon: iconName,
+                );
                 final iconData = dummyFolder.displayIcon;
-                
+
                 return GestureDetector(
                   onTap: () => setState(() => _selectedIcon = iconName),
                   child: GlassContainer(
@@ -181,7 +225,9 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
                     child: Center(
                       child: Icon(
                         iconData,
-                        color: isSelected ? Theme.of(context).primaryColor : null,
+                        color: isSelected
+                            ? Theme.of(context).primaryColor
+                            : null,
                       ),
                     ),
                   ),
@@ -189,9 +235,9 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
               },
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Save Button
           SizedBox(
             width: double.infinity,
@@ -199,9 +245,14 @@ class _FolderFormBottomSheetState extends ConsumerState<FolderFormBottomSheet> {
             child: ElevatedButton(
               onPressed: _save,
               style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
-              child: const Text('Save', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Save',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           const SizedBox(height: 16),

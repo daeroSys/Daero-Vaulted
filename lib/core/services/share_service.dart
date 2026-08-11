@@ -19,7 +19,7 @@ final shareIntentStreamProvider = StreamProvider<ParsedShare>((ref) {
 class ShareService {
   final ShareParserOrchestrator _parser = ShareParserOrchestrator();
   final _intentController = StreamController<ParsedShare>.broadcast();
-  
+
   StreamSubscription? _intentDataStreamSubscription;
 
   /// Stream of parsed share intents to be listened to by the UI
@@ -27,26 +27,34 @@ class ShareService {
 
   void initialize() {
     // For sharing images coming from outside the app while the app is in the memory
-    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream().listen((List<SharedMediaFile> value) {
-      _processMediaFiles(value);
-    }, onError: (err) {
-      debugPrint('getMediaStream error: $err');
-    });
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance
+        .getMediaStream()
+        .listen(
+          (List<SharedMediaFile> value) {
+            _processMediaFiles(value);
+          },
+          onError: (err) {
+            debugPrint('getMediaStream error: $err');
+          },
+        );
 
     // For sharing images coming from outside the app while the app is closed
-    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
-      _processMediaFiles(value);
-    }).catchError((err) {
-      debugPrint('getInitialMedia error: $err');
-    });
+    ReceiveSharingIntent.instance
+        .getInitialMedia()
+        .then((List<SharedMediaFile> value) {
+          _processMediaFiles(value);
+        })
+        .catchError((err) {
+          debugPrint('getInitialMedia error: $err');
+        });
   }
 
   void _processMediaFiles(List<SharedMediaFile> files) {
     if (files.isEmpty) return;
-    
+
     // We only process the first item for now, assuming text/URL
     final file = files.first;
-    
+
     // If it's a path or text (URL usually comes as path or thumbnail)
     // The library usually maps text intents to the 'path' field for text/plain
     final text = file.path;
@@ -54,7 +62,7 @@ class ShareService {
       final parsed = _parser.processText(text);
       _intentController.add(parsed);
     }
-    
+
     // Clear the intent so it doesn't fire again on cold starts
     ReceiveSharingIntent.instance.reset();
   }

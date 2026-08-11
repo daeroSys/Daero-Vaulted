@@ -12,9 +12,7 @@ class TikTokProvider implements MetadataProvider {
     try {
       final response = await _dio.get(
         'https://www.tiktok.com/oembed',
-        queryParameters: {
-          'url': url,
-        },
+        queryParameters: {'url': url},
       );
 
       final data = response.data;

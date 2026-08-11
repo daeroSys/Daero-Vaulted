@@ -12,10 +12,7 @@ class YouTubeProvider implements MetadataProvider {
     try {
       final response = await _dio.get(
         'https://www.youtube.com/oembed',
-        queryParameters: {
-          'url': url,
-          'format': 'json',
-        },
+        queryParameters: {'url': url, 'format': 'json'},
       );
 
       final data = response.data;

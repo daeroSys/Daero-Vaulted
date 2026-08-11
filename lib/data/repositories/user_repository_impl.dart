@@ -13,44 +13,54 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(this._userDao, this._syncRepository);
 
   @override
-  Future<void> createUser(String id, String email, String? displayName, String? photoUrl) async {
-    await _userDao.insertUser(UsersCompanion(
-      id: Value(id),
-      email: Value(email),
-      displayName: Value(displayName),
-      photoUrl: Value(photoUrl),
-      createdAt: Value(DateTime.now().toUtc()),
-      updatedAt: Value(DateTime.now().toUtc()),
-    ));
-    
-    await _syncRepository.queueMutation(
-      'users',
-      id,
-      SyncOperation.create,
-      SyncPriority.high,
-      {
-        'id': id,
-        'email': email,
-        'display_name': displayName,
-        'photo_url': photoUrl,
-        'subscription_tier': null,
-        'created_at': DateTime.now().toUtc().toIso8601String(),
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-        'deleted_at': null,
-      },
+  Future<void> createUser(
+    String id,
+    String email,
+    String? displayName,
+    String? photoUrl,
+  ) async {
+    await _userDao.insertUser(
+      UsersCompanion(
+        id: Value(id),
+        email: Value(email),
+        displayName: Value(displayName),
+        photoUrl: Value(photoUrl),
+        createdAt: Value(DateTime.now().toUtc()),
+        updatedAt: Value(DateTime.now().toUtc()),
+      ),
     );
+
+    await _syncRepository
+        .queueMutation('users', id, SyncOperation.create, SyncPriority.high, {
+          'id': id,
+          'email': email,
+          'display_name': displayName,
+          'photo_url': photoUrl,
+          'subscription_tier': null,
+          'created_at': DateTime.now().toUtc().toIso8601String(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+          'deleted_at': null,
+        });
   }
 
   @override
-  Future<void> updateUserProfile(String id, {String? displayName, String? photoUrl}) async {
+  Future<void> updateUserProfile(
+    String id, {
+    String? displayName,
+    String? photoUrl,
+  }) async {
     final existing = await _userDao.getUserById(id);
     if (existing != null) {
-      await _userDao.updateUser(existing.copyWith(
-        displayName: Value(displayName ?? existing.displayName),
-        photoUrl: Value(photoUrl ?? existing.photoUrl),
-        updatedAt: DateTime.now().toUtc(),
-      ).toCompanion(true));
-      
+      await _userDao.updateUser(
+        existing
+            .copyWith(
+              displayName: Value(displayName ?? existing.displayName),
+              photoUrl: Value(photoUrl ?? existing.photoUrl),
+              updatedAt: DateTime.now().toUtc(),
+            )
+            .toCompanion(true),
+      );
+
       await _syncRepository.queueMutation(
         'users',
         id,
@@ -74,11 +84,15 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateSubscriptionTier(String id, String tier) async {
     final existing = await _userDao.getUserById(id);
     if (existing != null) {
-      await _userDao.updateUser(existing.copyWith(
-        subscriptionTier: Value(tier),
-        updatedAt: DateTime.now().toUtc(),
-      ).toCompanion(true));
-      
+      await _userDao.updateUser(
+        existing
+            .copyWith(
+              subscriptionTier: Value(tier),
+              updatedAt: DateTime.now().toUtc(),
+            )
+            .toCompanion(true),
+      );
+
       await _syncRepository.queueMutation(
         'users',
         id,

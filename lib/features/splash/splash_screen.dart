@@ -44,10 +44,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: Stack(
         children: [
           Center(
-            child: Image.asset('assets/vaultedlogo.jpg', width: 120, height: 120)
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scaleXY(end: 1.1, duration: 1.seconds, curve: Curves.easeInOut)
-                .shimmer(duration: 2.seconds, color: Colors.white.withValues(alpha: 0.5)),
+            child:
+                Image.asset('assets/vaultedlogo.jpg', width: 120, height: 120)
+                    .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true),
+                    )
+                    .scaleXY(
+                      end: 1.1,
+                      duration: 1.seconds,
+                      curve: Curves.easeInOut,
+                    )
+                    .shimmer(
+                      duration: 2.seconds,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
           ),
           Positioned(
             bottom: 40,
@@ -62,14 +72,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ).animate().fade(delay: 500.ms, duration: 500.ms),
                 const SizedBox(height: 4),
                 Text(
-                  'D Λ Ξ R O',
-                  style: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    letterSpacing: 4,
-                  ),
-                ).animate().fade(delay: 500.ms, duration: 500.ms).slideY(begin: 0.5, end: 0, curve: Curves.easeOut),
+                      'D Λ Ξ R O',
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        letterSpacing: 4,
+                      ),
+                    )
+                    .animate()
+                    .fade(delay: 500.ms, duration: 500.ms)
+                    .slideY(begin: 0.5, end: 0, curve: Curves.easeOut),
               ],
             ),
           ),
@@ -78,4 +93,3 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     );
   }
 }
-

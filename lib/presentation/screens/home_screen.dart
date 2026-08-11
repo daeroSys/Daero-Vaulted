@@ -20,13 +20,20 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Vaulted', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Vaulted',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.5)),
+            child: Container(
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.5),
+            ),
           ),
         ),
       ),
@@ -63,7 +70,7 @@ class HomeScreen extends ConsumerWidget {
               child: Container(color: Colors.transparent),
             ),
           ),
-          
+
           // Content
           CustomScrollView(
             slivers: [
@@ -78,27 +85,32 @@ class HomeScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
                         'Welcome Back',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ).animate().fade().slideY(begin: 0.2, duration: 400.ms),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Recently Saved Section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Recently Saved',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ).animate().fade(delay: 100.ms).slideY(begin: 0.2, duration: 400.ms),
+                      child:
+                          Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Recently Saved',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              )
+                              .animate()
+                              .fade(delay: 100.ms)
+                              .slideY(begin: 0.2, duration: 400.ms),
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
@@ -106,73 +118,122 @@ class HomeScreen extends ConsumerWidget {
                       child: recentContentState.when(
                         data: (items) {
                           if (items.isEmpty) {
-                            return const Center(child: Text('No saved items yet.'));
+                            return const Center(
+                              child: Text('No saved items yet.'),
+                            );
                           }
                           return ListView.separated(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             scrollDirection: Axis.horizontal,
                             itemCount: items.length,
-                            separatorBuilder: (context, index) => const SizedBox(width: 16),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 16),
                             itemBuilder: (context, index) {
                               final item = items[index];
                               return GlassContainer(
-                                width: 240,
-                                padding: const EdgeInsets.all(12),
-                                onTap: () {
-                                  // Navigating to detail would go here.
-                                  // For now just show a simple snackbar or push somewhere
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Item detail coming soon!')),
-                                  );
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (item.thumbnail != null)
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: item.thumbnail!.startsWith('http') 
-                                            ? Image.network(
-                                                item.thumbnail!,
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) => Container(
-                                                  color: Colors.grey.withValues(alpha: 0.2),
-                                                  child: const Center(child: Icon(Icons.link)),
-                                                ),
-                                              )
-                                            : Image.file(
-                                                File(item.thumbnail!),
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) => Container(
-                                                  color: Colors.grey.withValues(alpha: 0.2),
-                                                  child: const Center(child: Icon(Icons.link)),
-                                                ),
-                                              ),
-                                        ),
-                                      )
-                                    else
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey.withValues(alpha: 0.2),
-                                            borderRadius: BorderRadius.circular(8),
+                                    width: 240,
+                                    padding: const EdgeInsets.all(12),
+                                    onTap: () {
+                                      // Navigating to detail would go here.
+                                      // For now just show a simple snackbar or push somewhere
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Item detail coming soon!',
                                           ),
-                                          child: const Center(child: Icon(Icons.link)),
                                         ),
-                                      ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      item.title ?? item.content.url,
-                                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      );
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        if (item.thumbnail != null)
+                                          Expanded(
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              child:
+                                                  item.thumbnail!.startsWith(
+                                                    'http',
+                                                  )
+                                                  ? Image.network(
+                                                      item.thumbnail!,
+                                                      width: double.infinity,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder:
+                                                          (
+                                                            _,
+                                                            __,
+                                                            ___,
+                                                          ) => Container(
+                                                            color: Colors.grey
+                                                                .withValues(
+                                                                  alpha: 0.2,
+                                                                ),
+                                                            child: const Center(
+                                                              child: Icon(
+                                                                Icons.link,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                    )
+                                                  : Image.file(
+                                                      File(item.thumbnail!),
+                                                      width: double.infinity,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder:
+                                                          (
+                                                            _,
+                                                            __,
+                                                            ___,
+                                                          ) => Container(
+                                                            color: Colors.grey
+                                                                .withValues(
+                                                                  alpha: 0.2,
+                                                                ),
+                                                            child: const Center(
+                                                              child: Icon(
+                                                                Icons.link,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                    ),
+                                            ),
+                                          )
+                                        else
+                                          Expanded(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: const Center(
+                                                child: Icon(Icons.link),
+                                              ),
+                                            ),
+                                          ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          item.title ?? item.content.url,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ).animate(delay: (200 + index * 100).ms).fade().scale(begin: const Offset(0.9, 0.9));
+                                  )
+                                  .animate(delay: (200 + index * 100).ms)
+                                  .fade()
+                                  .scale(begin: const Offset(0.9, 0.9));
                             },
                           );
                         },
@@ -180,13 +241,13 @@ class HomeScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           scrollDirection: Axis.horizontal,
                           itemCount: 3,
-                          separatorBuilder: (context, index) => const SizedBox(width: 16),
-                          itemBuilder: (context, index) => const ShimmerContainer(
-                            width: 240,
-                            height: 140,
-                          ),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 16),
+                          itemBuilder: (context, index) =>
+                              const ShimmerContainer(width: 240, height: 140),
                         ),
-                        error: (err, stack) => Center(child: Text('Error: $err')),
+                        error: (err, stack) =>
+                            Center(child: Text('Error: $err')),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -194,23 +255,29 @@ class HomeScreen extends ConsumerWidget {
                     // Quick Folders Section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Your Folders',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context.go('/folders');
-                            },
-                            child: const Text('View All'),
-                          ),
-                        ],
-                      ).animate().fade(delay: 300.ms).slideY(begin: 0.2, duration: 400.ms),
+                      child:
+                          Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Your Folders',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      context.go('/folders');
+                                    },
+                                    child: const Text('View All'),
+                                  ),
+                                ],
+                              )
+                              .animate()
+                              .fade(delay: 300.ms)
+                              .slideY(begin: 0.2, duration: 400.ms),
                     ),
                     const SizedBox(height: 16),
                     Padding(
@@ -218,7 +285,9 @@ class HomeScreen extends ConsumerWidget {
                       child: foldersState.when(
                         data: (folders) {
                           if (folders.isEmpty) {
-                            return const Center(child: Text('No folders created yet.'));
+                            return const Center(
+                              child: Text('No folders created yet.'),
+                            );
                           }
                           // Only show up to 4 folders on the home screen grid
                           final displayFolders = folders.take(4).toList();
@@ -226,41 +295,52 @@ class HomeScreen extends ConsumerWidget {
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 1.2,
-                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 1.2,
+                                ),
                             itemCount: displayFolders.length,
                             itemBuilder: (context, index) {
                               final folder = displayFolders[index];
                               return GlassContainer(
-                                onTap: () {
-                                  context.push('/folders/${folder.id}');
-                                },
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: folder.displayColor.withValues(alpha: 0.2),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(folder.displayIcon, color: folder.displayColor),
+                                    onTap: () {
+                                      context.push('/folders/${folder.id}');
+                                    },
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: folder.displayColor
+                                                .withValues(alpha: 0.2),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            folder.displayIcon,
+                                            color: folder.displayColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          folder.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      folder.name,
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ).animate(delay: (400 + index * 100).ms).fade().scale(begin: const Offset(0.9, 0.9));
+                                  )
+                                  .animate(delay: (400 + index * 100).ms)
+                                  .fade()
+                                  .scale(begin: const Offset(0.9, 0.9));
                             },
                           );
                         },
@@ -268,16 +348,22 @@ class HomeScreen extends ConsumerWidget {
                           padding: EdgeInsets.zero,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1.2,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 1.2,
+                              ),
                           itemCount: 4,
-                          itemBuilder: (context, index) => const ShimmerContainer(width: double.infinity, height: double.infinity),
+                          itemBuilder: (context, index) =>
+                              const ShimmerContainer(
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
                         ),
-                        error: (err, stack) => Center(child: Text('Error: $err')),
+                        error: (err, stack) =>
+                            Center(child: Text('Error: $err')),
                       ),
                     ),
                   ]),

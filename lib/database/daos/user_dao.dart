@@ -9,15 +9,15 @@ class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   UserDao(super.db);
 
   Future<List<User>> getAllUsers() => select(users).get();
-  
+
   Future<User?> getUserById(String id) {
     return (select(users)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
-  
+
   Future<int> insertUser(UsersCompanion user) => into(users).insert(user);
-  
+
   Future<bool> updateUser(UsersCompanion user) => update(users).replace(user);
-  
+
   Future<int> deleteUser(String id) {
     return (delete(users)..where((t) => t.id.equals(id))).go();
   }

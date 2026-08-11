@@ -13,12 +13,17 @@ final contentRepositoryProvider = Provider<ContentRepository>((ref) {
   return ContentRepositoryImpl(db.contentDao, syncRepo);
 });
 
-final duplicateDetectionServiceProvider = Provider<DuplicateDetectionService>((ref) {
+final duplicateDetectionServiceProvider = Provider<DuplicateDetectionService>((
+  ref,
+) {
   final repo = ref.watch(contentRepositoryProvider);
   return DuplicateDetectionService(repo);
 });
 
-final folderItemsProvider = StreamProvider.family<List<SavedItemView>, String>((ref, folderId) {
+final folderItemsProvider = StreamProvider.family<List<SavedItemView>, String>((
+  ref,
+  folderId,
+) {
   final repo = ref.watch(contentRepositoryProvider);
   return repo.watchItemsInFolder(folderId);
 });

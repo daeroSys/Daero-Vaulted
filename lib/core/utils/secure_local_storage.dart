@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Implements Supabase's [LocalStorage] to securely persist the session token.
 class SecureLocalStorage extends LocalStorage {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
+
   // The key used by default in supabase_flutter
   final String _storageKey = 'supabase.auth.token';
 

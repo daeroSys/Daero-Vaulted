@@ -22,9 +22,7 @@ class PlaceholderScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Text('Placeholder for $title'),
-      ),
+      body: Center(child: Text('Placeholder for $title')),
     );
   }
 }

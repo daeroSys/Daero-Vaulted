@@ -7,10 +7,7 @@ import 'package:vaulted/presentation/widgets/save_share_bottom_sheet.dart';
 class MainNavigationScaffold extends ConsumerWidget {
   final Widget child;
 
-  const MainNavigationScaffold({
-    super.key,
-    required this.child,
-  });
+  const MainNavigationScaffold({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,7 +19,7 @@ class MainNavigationScaffold extends ConsumerWidget {
     });
 
     final location = GoRouterState.of(context).matchedLocation;
-    
+
     int currentIndex = 0;
     if (location.startsWith('/folders')) {
       currentIndex = 1;

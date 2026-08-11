@@ -21,9 +21,7 @@ import 'firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   debugPrint('Handling a background message: ${message.messageId}');
 }
 
@@ -40,7 +38,7 @@ void callbackDispatcher() {
           localStorage: SecureLocalStorage(),
         ),
       );
-      
+
       final container = ProviderContainer();
       final syncService = container.read(syncServiceProvider);
       await syncService.processQueue();
@@ -54,7 +52,7 @@ void callbackDispatcher() {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables
   try {
     await dotenv.load(fileName: '.env');
@@ -71,12 +69,12 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    
+
     // Pass all uncaught "fatal" errors from the framework to Crashlytics
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
-    
+
     // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -92,22 +90,24 @@ void main() async {
       url: Env.supabaseUrl,
       // ignore: deprecated_member_use
       anonKey: Env.supabaseAnonKey,
-      authOptions: FlutterAuthClientOptions(
-        localStorage: SecureLocalStorage(),
-      ),
+      authOptions: FlutterAuthClientOptions(localStorage: SecureLocalStorage()),
     );
   } catch (e, stack) {
     AppLogger.e('Failed to initialize Supabase: $e');
     try {
-      File('C:\\Vaulted\\supabase_error.txt').writeAsStringSync('Error: $e\nStack: $stack');
+      File(
+        'C:\\Vaulted\\supabase_error.txt',
+      ).writeAsStringSync('Error: $e\nStack: $stack');
     } catch (_) {}
   }
 
   // Initialize RevenueCat
   try {
     if (PlatformDispatcher.instance.defaultRouteName != 'test') {
-      await Purchases.setLogLevel(Env.isProduction ? LogLevel.error : LogLevel.debug);
-      
+      await Purchases.setLogLevel(
+        Env.isProduction ? LogLevel.error : LogLevel.debug,
+      );
+
       PurchasesConfiguration configuration;
       // In a real app, you would check Platform.isAndroid or Platform.isIOS to pass the right key.
       configuration = PurchasesConfiguration(Env.revenueCatApiKey);
@@ -119,26 +119,18 @@ void main() async {
 
   // Initialize Workmanager
   try {
-    await Workmanager().initialize(
-      callbackDispatcher,
-    );
+    await Workmanager().initialize(callbackDispatcher);
     await Workmanager().registerPeriodicTask(
       'offline-sync-task',
       'processSyncQueue',
       frequency: const Duration(minutes: 15),
-      constraints: Constraints(
-        networkType: NetworkType.connected,
-      ),
+      constraints: Constraints(networkType: NetworkType.connected),
     );
   } catch (e) {
     AppLogger.e('Failed to initialize Workmanager: $e');
   }
 
-  runApp(
-    const ProviderScope(
-      child: VaultedApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: VaultedApp()));
 }
 
 class VaultedApp extends ConsumerStatefulWidget {

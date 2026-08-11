@@ -32,7 +32,7 @@ class SupabaseAuthRepository implements AuthenticationRepository {
       clientId: iosClientId.isEmpty ? null : iosClientId,
       serverClientId: webClientId,
     );
-    
+
     final googleUser = await googleSignIn.signIn();
     if (googleUser == null) {
       // User canceled the sign-in flow
@@ -59,7 +59,7 @@ class SupabaseAuthRepository implements AuthenticationRepository {
 
   @override
   Future<void> signInWithApple() async {
-    // Apple sign-in can be implemented using sign_in_with_apple package 
+    // Apple sign-in can be implemented using sign_in_with_apple package
     // and passing the rawNonce and idToken to Supabase.
     // For now, this is a placeholder until Apple Developer account is ready.
     throw UnimplementedError('Apple Sign-In is pending Apple Developer setup');
@@ -67,24 +67,18 @@ class SupabaseAuthRepository implements AuthenticationRepository {
 
   @override
   Future<void> signInWithEmail(String email, String password) async {
-    await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    await _supabase.auth.signInWithPassword(email: email, password: password);
   }
 
   @override
   Future<void> signUpWithEmail(String email, String password) async {
-    await _supabase.auth.signUp(
-      email: email,
-      password: password,
-    );
+    await _supabase.auth.signUp(email: email, password: password);
   }
 
   @override
   Future<void> signOut() async {
     await _supabase.auth.signOut();
-    
+
     try {
       final webClientId = Env.googleWebClientId;
       final iosClientId = Env.googleIosClientId;

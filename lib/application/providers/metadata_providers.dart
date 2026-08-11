@@ -30,9 +30,9 @@ final metadataServiceProvider = Provider<MetadataService>((ref) {
   final searchRepo = ref.watch(searchRepositoryProvider);
   final cacheService = ref.watch(thumbnailCacheServiceProvider);
   final dio = ref.watch(dioClientProvider).dio;
-  
+
   final genericProvider = GenericUrlProvider(dio);
-  
+
   final providers = <Platform, MetadataProvider>{
     Platform.youtube: YouTubeProvider(dio),
     Platform.tiktok: TikTokProvider(dio),

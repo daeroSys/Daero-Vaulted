@@ -56,7 +56,7 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 3;
-  
+
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
@@ -80,7 +80,7 @@ class AppDatabase extends _$AppDatabase {
           ''');
         }
         if (from < 3) {
-          // Intentionally left blank. 
+          // Intentionally left blank.
           // We decided to skip backfilling existing data for FTS.
         }
       },

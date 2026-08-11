@@ -16,7 +16,9 @@ class ContentRepositoryImpl implements ContentRepository {
 
   @override
   Future<entity.Content?> findContentByCanonicalUrl(String canonicalUrl) async {
-    final driftContent = await _contentDao.getContentByCanonicalUrl(canonicalUrl);
+    final driftContent = await _contentDao.getContentByCanonicalUrl(
+      canonicalUrl,
+    );
     if (driftContent == null) return null;
     return entity.Content(
       id: driftContent.id,
@@ -40,15 +42,17 @@ class ContentRepositoryImpl implements ContentRepository {
     // 1. Ensure content exists in DB
     final existingContent = await _contentDao.getContentById(content.id);
     if (existingContent == null) {
-      await _contentDao.insertContent(ContentCompanion(
-        id: Value(content.id),
-        platform: Value(content.platform),
-        contentType: Value(content.type),
-        url: Value(content.url),
-        canonicalUrl: Value(content.canonicalUrl),
-        createdAt: Value(content.createdAt),
-        updatedAt: Value(content.updatedAt),
-      ));
+      await _contentDao.insertContent(
+        ContentCompanion(
+          id: Value(content.id),
+          platform: Value(content.platform),
+          contentType: Value(content.type),
+          url: Value(content.url),
+          canonicalUrl: Value(content.canonicalUrl),
+          createdAt: Value(content.createdAt),
+          updatedAt: Value(content.updatedAt),
+        ),
+      );
 
       await _syncRepository.queueMutation(
         'content',
@@ -57,7 +61,9 @@ class ContentRepositoryImpl implements ContentRepository {
         SyncPriority.high,
         {
           'id': content.id,
-          'platform': content.platform.name, // assuming platform and type need string conversion matching DB schema
+          'platform': content
+              .platform
+              .name, // assuming platform and type need string conversion matching DB schema
           'content_type': content.type.name,
           'url': content.url,
           'canonical_url': content.canonicalUrl,
@@ -67,20 +73,22 @@ class ContentRepositoryImpl implements ContentRepository {
         },
       );
     }
-    
+
     // 2. Create SavedItem
     final savedItemId = UuidUtils.generateV7();
     final now = DateTime.now().toUtc();
-    
-    await _contentDao.insertSavedItem(SavedItemsCompanion(
-      id: Value(savedItemId),
-      userId: Value(userId),
-      folderId: Value(folderId),
-      contentId: Value(content.id),
-      notes: Value(notes ?? ''),
-      savedAt: Value(now),
-      updatedAt: Value(now),
-    ));
+
+    await _contentDao.insertSavedItem(
+      SavedItemsCompanion(
+        id: Value(savedItemId),
+        userId: Value(userId),
+        folderId: Value(folderId),
+        contentId: Value(content.id),
+        notes: Value(notes ?? ''),
+        savedAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
 
     await _syncRepository.queueMutation(
       'saved_items',
@@ -100,7 +108,7 @@ class ContentRepositoryImpl implements ContentRepository {
         'deleted_at': null,
       },
     );
-    
+
     return entity.SavedItem(
       id: savedItemId,
       userId: userId,
@@ -111,8 +119,15 @@ class ContentRepositoryImpl implements ContentRepository {
       updatedAt: now,
     );
   }
+
   @override
-  Future<void> updateSavedItem(String id, {String? folderId, String? notes, bool? isFavorite, bool? isArchived}) async {
+  Future<void> updateSavedItem(
+    String id, {
+    String? folderId,
+    String? notes,
+    bool? isFavorite,
+    bool? isArchived,
+  }) async {
     final existing = await _contentDao.getSavedItem(id);
     if (existing != null) {
       final now = DateTime.now().toUtc();
@@ -151,10 +166,7 @@ class ContentRepositoryImpl implements ContentRepository {
     final existing = await _contentDao.getSavedItem(id);
     if (existing != null) {
       final now = DateTime.now().toUtc();
-      final updated = existing.copyWith(
-        deletedAt: Value(now),
-        updatedAt: now,
-      );
+      final updated = existing.copyWith(deletedAt: Value(now), updatedAt: now);
       await _contentDao.updateSavedItem(updated.toCompanion(true));
 
       await _syncRepository.queueMutation(
@@ -177,7 +189,7 @@ class ContentRepositoryImpl implements ContentRepository {
       );
     }
   }
-  
+
   @override
   Stream<List<entity.SavedItemView>> watchItemsInFolder(String folderId) {
     return _contentDao.watchItemsInFolderQuery(folderId).map((rows) {
@@ -256,5 +268,10 @@ class ContentRepositoryImpl implements ContentRepository {
         );
       }).toList();
     });
+  }
+
+  @override
+  Future<int> getTotalSavedItemsCount(String userId) async {
+    return _contentDao.countSavedItems(userId);
   }
 }

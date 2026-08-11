@@ -24,7 +24,7 @@ class MicrolinkProvider implements MetadataProvider {
       final title = data['title'] as String?;
       final description = data['description'] as String?;
       final creator = data['publisher'] as String?;
-      
+
       String? thumbnailUrl;
       if (data['image'] != null) {
         thumbnailUrl = data['image']['url'] as String?;

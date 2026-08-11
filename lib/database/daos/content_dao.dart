@@ -13,31 +13,53 @@ class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
   Future<ContentData?> getContentById(String id) {
     return (select(content)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
-  
+
   Future<ContentData?> getContentByCanonicalUrl(String url) {
-    return (select(content)..where((t) => t.canonicalUrl.equals(url))).getSingleOrNull();
+    return (select(
+      content,
+    )..where((t) => t.canonicalUrl.equals(url))).getSingleOrNull();
   }
-  
-  Future<int> insertContent(ContentCompanion entry) => into(content).insert(entry);
-  
-  Future<bool> updateContent(ContentCompanion entry) => update(content).replace(entry);
-  
+
+  Future<int> insertContent(ContentCompanion entry) =>
+      into(content).insert(entry);
+
+  Future<bool> updateContent(ContentCompanion entry) =>
+      update(content).replace(entry);
+
   // SavedItems
-  Future<int> insertSavedItem(SavedItemsCompanion item) => into(savedItems).insert(item);
-  
-  Future<bool> updateSavedItem(SavedItemsCompanion item) => update(savedItems).replace(item);
-  
+  Future<int> insertSavedItem(SavedItemsCompanion item) =>
+      into(savedItems).insert(item);
+
+  Future<bool> updateSavedItem(SavedItemsCompanion item) =>
+      update(savedItems).replace(item);
+
   Future<SavedItem?> getSavedItem(String id) {
-    return (select(savedItems)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return (select(
+      savedItems,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<int> countSavedItems(String userId) async {
+    final count = savedItems.id.count();
+    final query = selectOnly(savedItems)
+      ..addColumns([count])
+      ..where(savedItems.userId.equals(userId) & savedItems.deletedAt.isNull());
+    final result = await query.getSingle();
+    return result.read(count) ?? 0;
   }
 
   Stream<List<TypedResult>> watchItemsInFolderQuery(String folderId) {
-    final query = select(savedItems).join([
-      innerJoin(content, content.id.equalsExp(savedItems.contentId)),
-      leftOuterJoin(contentMetadata, contentMetadata.contentId.equalsExp(content.id)),
-    ])
-    ..where(savedItems.folderId.equals(folderId) & savedItems.deletedAt.isNull());
-    
+    final query =
+        select(savedItems).join([
+          innerJoin(content, content.id.equalsExp(savedItems.contentId)),
+          leftOuterJoin(
+            contentMetadata,
+            contentMetadata.contentId.equalsExp(content.id),
+          ),
+        ])..where(
+          savedItems.folderId.equals(folderId) & savedItems.deletedAt.isNull(),
+        );
+
     query.orderBy([OrderingTerm.desc(savedItems.savedAt)]);
     return query.watch();
   }
@@ -45,10 +67,12 @@ class ContentDao extends DatabaseAccessor<AppDatabase> with _$ContentDaoMixin {
   Stream<List<TypedResult>> watchRecentItemsQuery(int limit) {
     final query = select(savedItems).join([
       innerJoin(content, content.id.equalsExp(savedItems.contentId)),
-      leftOuterJoin(contentMetadata, contentMetadata.contentId.equalsExp(content.id)),
-    ])
-    ..where(savedItems.deletedAt.isNull());
-    
+      leftOuterJoin(
+        contentMetadata,
+        contentMetadata.contentId.equalsExp(content.id),
+      ),
+    ])..where(savedItems.deletedAt.isNull());
+
     query.orderBy([OrderingTerm.desc(savedItems.savedAt)]);
     query.limit(limit);
     return query.watch();
